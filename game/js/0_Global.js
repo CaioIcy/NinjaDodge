@@ -1,11 +1,15 @@
-const canvas = document.getElementById("canvas");
-const d = canvas.getContext("2d");
+var canvas = document.getElementById("canvas");
+var d = canvas.getContext("2d");
+
+var auxcanvas = document.getElementById("auxcanvas");
+var daux = auxcanvas.getContext("2d");
 
 var PLAYER_VELOCITY = 0.0095;
 var PLAYER_FRICTION = 0.987;
+var BLOCK_RADIUS = 10;
+var BLOCK_DELAY = 1000; // in milliseconds
+
 var pressedKeys = [];
-
-
 
 //////////////////////////////
 /*

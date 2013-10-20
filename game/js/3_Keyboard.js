@@ -1,8 +1,7 @@
 function Keyboard(){
 
 	this.updateKeyInput = function(){
-		var isPressing = false;
-
+	
 		//Move Up (UP or W)
 		if(pressedKeys[VK_UP] || pressedKeys[VK_W]){
 			player.vy -= PLAYER_VELOCITY;
@@ -29,6 +28,18 @@ function Keyboard(){
 			player.vx += PLAYER_VELOCITY;
 		}
 		else{
+		}
+		
+		//Block (SPACEBAR)
+		if(pressedKeys[VK_SPACEBAR] && !isPressing){
+			isPressing = true;
+			
+			if(!player.isBlocking){
+				player.block();
+			}
+		}
+		else{
+			isPressing = false;
 		}
 		
 	};

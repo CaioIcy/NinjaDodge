@@ -1,12 +1,16 @@
 // Jamming from file: 0_Global.js
-const canvas = document.getElementById("canvas");
-const d = canvas.getContext("2d");
+var canvas = document.getElementById("canvas");
+var d = canvas.getContext("2d");
+
+var auxcanvas = document.getElementById("auxcanvas");
+var daux = auxcanvas.getContext("2d");
 
 var PLAYER_VELOCITY = 0.0095;
 var PLAYER_FRICTION = 0.987;
+var BLOCK_RADIUS = 10;
+var BLOCK_DELAY = 1000; // in milliseconds
+
 var pressedKeys = [];
-
-
 
 //////////////////////////////
 /*
@@ -117,8 +121,8 @@ var VK_CLOSEBRACKETS = 221;
 var VK_QUOTES = 222;
 
 // Jamming from file: 1_Sprites.js
-const sprite_Player = new Image();
-sprite_Player.src = "res/Player.png";
+var playerSprite = new Image();
+playerSprite.src = "res/Player.png";
 
 // Jamming from file: 2_Player.js
 function Player(x, y){
@@ -126,7 +130,8 @@ function Player(x, y){
 	this.y = y;
 	this.vx = 0;
 	this.vy = 0;
-	this.sprite = sprite_Player;
+	this.sprite = playerSprite;
+	this.isBlocking = false;
 	
 	//Update
 	this.update = function(){
@@ -135,23 +140,47 @@ function Player(x, y){
 		
 		this.vy *= PLAYER_FRICTION;
 		this.y += this.vy;
-	}
+	};
 	
 	//Render
 	this.render = function(){
 		d.drawImage(this.sprite, this.x, this.y, this.sprite.width, this.sprite.height);
-	}
+	};
+	
+	//Block
+	this.block = function(){
+	
+		this.isBlocking = true;
+		
+		var blockX = this.x + (this.sprite.width/2);
+		var blockY = this.y + (this.sprite.height/2);
+		var blockRadius = this.sprite.width + BLOCK_RADIUS;
+	
+		daux.beginPath();
+		daux.arc(blockX, blockY, blockRadius, 0, Math.PI*2, true); 
+		daux.stroke();
+		
+		setTimeout(function(){
+			daux.clearRect(0, 0, auxcanvas.width, auxcanvas.height);
+		}, 200);
+		
+		setTimeout(function(){
+			player.isBlocking = false;
+		}, BLOCK_DELAY);
+		
+	};
 	
 }
 
-player = new Player(0,0);
+var PLAYER_START_X = (canvas.width/2) - (playerSprite.width/2);
+var PLAYER_START_Y = (canvas.height/2) - (playerSprite.height/2);
+player = new Player(PLAYER_START_X, PLAYER_START_Y);
 
 // Jamming from file: 3_Keyboard.js
 function Keyboard(){
 
 	this.updateKeyInput = function(){
-		var isPressing = false;
-
+	
 		//Move Up (UP or W)
 		if(pressedKeys[VK_UP] || pressedKeys[VK_W]){
 			player.vy -= PLAYER_VELOCITY;
@@ -178,6 +207,18 @@ function Keyboard(){
 			player.vx += PLAYER_VELOCITY;
 		}
 		else{
+		}
+		
+		//Block (SPACEBAR)
+		if(pressedKeys[VK_SPACEBAR] && !isPressing){
+			isPressing = true;
+			
+			if(!player.isBlocking){
+				player.block();
+			}
+		}
+		else{
+			isPressing = false;
 		}
 		
 	};

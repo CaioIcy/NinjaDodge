@@ -1,2 +1,2 @@
-const sprite_Player = new Image();
-sprite_Player.src = "res/Player.png";
+var playerSprite = new Image();
+playerSprite.src = "res/Player.png";

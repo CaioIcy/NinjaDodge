@@ -8,6 +8,5 @@ function render(){
 	player.render();
 }
 
-
 window.setInterval("update()",60/1000);
 window.setInterval("render()",1);

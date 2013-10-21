@@ -37,9 +37,6 @@ function render(){
 		followEnemies[i].render();
 	}
 	
-	daux.clearRect(0,0,auxcanvas.width,auxcanvas.height);
-	daux.fillText(lineEnemies.length, 600, 500);
-	
 }
 
 window.setInterval("update()",60/1000);

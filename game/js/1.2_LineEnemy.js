@@ -3,6 +3,7 @@ function LineEnemy(x, y){
 	this.y = y;
 	this.sprite = enemyLineSprite;
 	this.speed = ENEMY_VELOCITY;
+	this.radius = ENEMY_SPRITE_WIDTH/2;
 	
 	this.xToFollow = player.x - this.x;
 	this.yToFollow = player.y - this.y;
@@ -14,7 +15,6 @@ function LineEnemy(x, y){
 	//Destroy
 	this.destroy = function(){
 		lineEnemies.splice(lineEnemies.indexOf(this), 1);
-		lineEnemyIndex--;
 	};
 	
 	//Update
@@ -30,11 +30,17 @@ function LineEnemy(x, y){
 	//Render
 	this.render = function(){
 		d.drawImage(this.sprite, this.x, this.y, this.sprite.width, this.sprite.height);
+	
+		var blockX = this.x + (this.sprite.width/2);
+		var blockY = this.y + (this.sprite.height/2);
+	
+		d.beginPath();
+		d.arc(blockX, blockY, 5+(ENEMY_SPRITE_WIDTH/2), 0, Math.PI*2, true); 
+		d.stroke();
 	};
 	
 }
 
-var lineEnemyIndex = 0;
 var lineEnemies = [];
 
 function createLineEnemy(){
@@ -63,7 +69,6 @@ function createLineEnemy(){
 		alert("Error: LineEnemy -> createLineEnemy");
 	}
 	
-	lineEnemies[lineEnemyIndex] = new LineEnemy(xpos,ypos);
-	lineEnemyIndex++;
+	lineEnemies[lineEnemies.length] = new LineEnemy(xpos,ypos);
 }
 

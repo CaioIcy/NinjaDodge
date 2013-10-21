@@ -5,6 +5,13 @@ function FollowEnemy(x, y){
 	this.sprite = enemyFollowSprite;
 	this.speed = ENEMY_VELOCITY;
 	
+	this.radius = ENEMY_SPRITE_WIDTH/2;
+	
+	//Destroy
+	this.destroy = function(){
+		followEnemies.splice(followEnemies.indexOf(this), 1);
+	};
+	
 	//Update
 	this.update = function(){
 		var xToFollow = player.x - this.x;
@@ -19,17 +26,27 @@ function FollowEnemy(x, y){
 		this.x += xToFollow*this.speed;
 		this.y += yToFollow*this.speed;
 		
+		if(this.x > canvas.width+50 || this.x < -50 || this.y > canvas.height+50 || this.y < -50){
+			this.destroy();
+		}
 		
 	};
 	
 	//Render
 	this.render = function(){
 		d.drawImage(this.sprite, this.x, this.y, this.sprite.width, this.sprite.height);
+		
+		var blockX = this.x + (this.sprite.width/2);
+		var blockY = this.y + (this.sprite.height/2);
+	
+		d.beginPath();
+		d.arc(blockX, blockY, 5+(ENEMY_SPRITE_WIDTH/2), 0, Math.PI*2, true); 
+		d.stroke();
 	};
 	
 }
 
-var followEnemyIndex = 0;
+
 var followEnemies = [];
 
 function createFollowEnemy(){
@@ -58,6 +75,5 @@ function createFollowEnemy(){
 		alert("Error: FollowEnemy -> createFollowEnemy");
 	}
 	
-	followEnemies[followEnemyIndex] = new FollowEnemy(xpos,ypos);
-	followEnemyIndex++;
+	followEnemies[followEnemies.length] = new FollowEnemy(xpos,ypos);
 }

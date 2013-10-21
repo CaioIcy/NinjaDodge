@@ -13,7 +13,7 @@ function Keyboard(){
 		if(pressedKeys[VK_LEFT] || pressedKeys[VK_A]){
 			player.vx -= player.speed;
 		}
-		else{
+		else if(!(pressedKeys[VK_LEFT] || pressedKeys[VK_A])){
 		}
 		
 		//Move Down (DOWN or S)
@@ -32,13 +32,13 @@ function Keyboard(){
 		
 		//Block (SPACEBAR)
 		if(pressedKeys[VK_SPACEBAR] && !isPressing){
+			alert("KYOPSPACE");
 			isPressing = true;
-			
 			if(!player.isBlocking){
 				player.block();
 			}
 		}
-		else{
+		else if(!(pressedKeys[VK_SPACEBAR] && !isPressing)){
 			isPressing = false;
 		}
 		
@@ -55,5 +55,6 @@ window.onkeyup = function(e){
 	e=e||event;
 	pressedKeys[e.keyCode] = false;
 };
+
 
 keyboard = new Keyboard();

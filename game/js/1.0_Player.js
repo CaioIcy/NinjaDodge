@@ -1,13 +1,15 @@
 function Player(x, y){
 	this.x = x;
 	this.y = y;
+	
+	
 	this.vx = 0;
 	this.vy = 0;
 	this.speed = STARTING_PLAYER_VELOCITY;
 	this.sprite = playerSprite;
 	this.isBlocking = false;
-	//alert("PLAYER_SPRITE_WIDTH (" + PLAYER_SPRITE_WIDTH + ") + BLOCK_RADIUS (" + BLOCK_RADIUS + ") = " + (this.sprite.width+BLOCK_RADIUS));
-	this.blockRadius = PLAYER_SPRITE_WIDTH + BLOCK_RADIUS;
+	this.blockRadius = (PLAYER_SPRITE_WIDTH/2) + BLOCK_RADIUS;
+	this.radius = PLAYER_SPRITE_WIDTH/2;
 	
 	//Update
 	this.update = function(){
@@ -28,6 +30,8 @@ function Player(x, y){
 	
 		this.isBlocking = true;
 		
+		checkEnemiesCollision(this);	
+				
 		var blockX = this.x + (this.sprite.width/2);
 		var blockY = this.y + (this.sprite.height/2);
 	
@@ -37,7 +41,7 @@ function Player(x, y){
 		
 		setTimeout(function(){
 			daux.clearRect(0, 0, auxcanvas.width, auxcanvas.height);
-		}, 200);
+		}, 50);
 		
 		setTimeout(function(){
 			player.isBlocking = false;
@@ -45,6 +49,23 @@ function Player(x, y){
 		
 	};
 	
+}
+
+function checkEnemiesCollision(player){
+	for(var i = 0; i<lineEnemies.length; i++){
+		if( circleCollision(player, lineEnemies[i]) ){
+			lineEnemies[i].destroy();
+			alert("collided line: " + i);
+		}
+	}
+		
+		
+	for(var i = 0; i<followEnemies.length; i++){
+		if( circleCollision(this, followEnemies[i]) ){
+			followEnemies[i].destroy();
+			alert("collided follow: " + i);
+		}
+	}	
 }
 
 var PLAYER_START_X = (canvas.width/2) - (playerSprite.width/2);

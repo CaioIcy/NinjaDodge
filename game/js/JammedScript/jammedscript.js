@@ -5,14 +5,17 @@ var d = canvas.getContext("2d");
 var auxcanvas = document.getElementById("auxcanvas");
 var daux = auxcanvas.getContext("2d");
 
+var i = 0;
+
 var ENEMY_VELOCITY = 0.7;
 var MAX_ENEMY_VELOCITY = 3;
 var STARTING_PLAYER_VELOCITY = 0.0095;
 var PLAYER_FRICTION = 0.987;
-var BLOCK_RADIUS = 0;
+var BLOCK_RADIUS = 5;
 var BLOCK_DELAY = 1000; // in milliseconds
 
 var PLAYER_SPRITE_WIDTH = 30;
+var ENEMY_SPRITE_WIDTH = 30;
 
 var SPAWN_LINE_ENEMY_DELAY = 1000.0; //in microseconds
 var SPAWN_FOLLOW_ENEMY_DELAY = 1500.0; //in microseconds
@@ -21,6 +24,22 @@ var pressedKeys = [];
 
 function randomize(limit){
 	return Math.floor(Math.random()*limit)+1;
+}
+
+function circleCollision(circle1, circle2){
+
+	var collided = false;
+	
+	var dx = (circle2.x + circle2.radius) - (circle1.x + circle1.radius);
+	var dy = (circle2.y + circle2.radius) - (circle1.y + circle1.radius);
+	var distance = Math.sqrt(Math.pow(dx,2) + Math.pow(dy,2));
+
+	if (Math.abs(distance) <= Math.abs(circle1.radius + circle2.radius)){
+		collided = true;
+	}
+
+	return collided;
+	
 }
 
 //////////////////////////////
@@ -145,13 +164,15 @@ enemyLineSprite.src = "res/LineEnemy.png";
 function Player(x, y){
 	this.x = x;
 	this.y = y;
+	
+	
 	this.vx = 0;
 	this.vy = 0;
 	this.speed = STARTING_PLAYER_VELOCITY;
 	this.sprite = playerSprite;
 	this.isBlocking = false;
-	//alert("PLAYER_SPRITE_WIDTH (" + PLAYER_SPRITE_WIDTH + ") + BLOCK_RADIUS (" + BLOCK_RADIUS + ") = " + (this.sprite.width+BLOCK_RADIUS));
-	this.blockRadius = PLAYER_SPRITE_WIDTH + BLOCK_RADIUS;
+	this.blockRadius = (PLAYER_SPRITE_WIDTH/2) + BLOCK_RADIUS;
+	this.radius = PLAYER_SPRITE_WIDTH/2;
 	
 	//Update
 	this.update = function(){
@@ -172,6 +193,8 @@ function Player(x, y){
 	
 		this.isBlocking = true;
 		
+		checkEnemiesCollision(this);	
+				
 		var blockX = this.x + (this.sprite.width/2);
 		var blockY = this.y + (this.sprite.height/2);
 	
@@ -181,7 +204,7 @@ function Player(x, y){
 		
 		setTimeout(function(){
 			daux.clearRect(0, 0, auxcanvas.width, auxcanvas.height);
-		}, 200);
+		}, 50);
 		
 		setTimeout(function(){
 			player.isBlocking = false;
@@ -189,6 +212,23 @@ function Player(x, y){
 		
 	};
 	
+}
+
+function checkEnemiesCollision(player){
+	for(var i = 0; i<lineEnemies.length; i++){
+		if( circleCollision(player, lineEnemies[i]) ){
+			lineEnemies[i].destroy();
+			alert("collided line: " + i);
+		}
+	}
+		
+		
+	for(var i = 0; i<followEnemies.length; i++){
+		if( circleCollision(this, followEnemies[i]) ){
+			followEnemies[i].destroy();
+			alert("collided follow: " + i);
+		}
+	}	
 }
 
 var PLAYER_START_X = (canvas.width/2) - (playerSprite.width/2);
@@ -202,6 +242,13 @@ function FollowEnemy(x, y){
 
 	this.sprite = enemyFollowSprite;
 	this.speed = ENEMY_VELOCITY;
+	
+	this.radius = ENEMY_SPRITE_WIDTH/2;
+	
+	//Destroy
+	this.destroy = function(){
+		followEnemies.splice(followEnemies.indexOf(this), 1);
+	};
 	
 	//Update
 	this.update = function(){
@@ -217,17 +264,27 @@ function FollowEnemy(x, y){
 		this.x += xToFollow*this.speed;
 		this.y += yToFollow*this.speed;
 		
+		if(this.x > canvas.width+50 || this.x < -50 || this.y > canvas.height+50 || this.y < -50){
+			this.destroy();
+		}
 		
 	};
 	
 	//Render
 	this.render = function(){
 		d.drawImage(this.sprite, this.x, this.y, this.sprite.width, this.sprite.height);
+		
+		var blockX = this.x + (this.sprite.width/2);
+		var blockY = this.y + (this.sprite.height/2);
+	
+		d.beginPath();
+		d.arc(blockX, blockY, 5+(ENEMY_SPRITE_WIDTH/2), 0, Math.PI*2, true); 
+		d.stroke();
 	};
 	
 }
 
-var followEnemyIndex = 0;
+
 var followEnemies = [];
 
 function createFollowEnemy(){
@@ -256,8 +313,7 @@ function createFollowEnemy(){
 		alert("Error: FollowEnemy -> createFollowEnemy");
 	}
 	
-	followEnemies[followEnemyIndex] = new FollowEnemy(xpos,ypos);
-	followEnemyIndex++;
+	followEnemies[followEnemies.length] = new FollowEnemy(xpos,ypos);
 }
 
 // Jamming from file: 1.2_LineEnemy.js
@@ -266,6 +322,7 @@ function LineEnemy(x, y){
 	this.y = y;
 	this.sprite = enemyLineSprite;
 	this.speed = ENEMY_VELOCITY;
+	this.radius = ENEMY_SPRITE_WIDTH/2;
 	
 	this.xToFollow = player.x - this.x;
 	this.yToFollow = player.y - this.y;
@@ -277,7 +334,6 @@ function LineEnemy(x, y){
 	//Destroy
 	this.destroy = function(){
 		lineEnemies.splice(lineEnemies.indexOf(this), 1);
-		lineEnemyIndex--;
 	};
 	
 	//Update
@@ -293,11 +349,17 @@ function LineEnemy(x, y){
 	//Render
 	this.render = function(){
 		d.drawImage(this.sprite, this.x, this.y, this.sprite.width, this.sprite.height);
+	
+		var blockX = this.x + (this.sprite.width/2);
+		var blockY = this.y + (this.sprite.height/2);
+	
+		d.beginPath();
+		d.arc(blockX, blockY, 5+(ENEMY_SPRITE_WIDTH/2), 0, Math.PI*2, true); 
+		d.stroke();
 	};
 	
 }
 
-var lineEnemyIndex = 0;
 var lineEnemies = [];
 
 function createLineEnemy(){
@@ -326,8 +388,7 @@ function createLineEnemy(){
 		alert("Error: LineEnemy -> createLineEnemy");
 	}
 	
-	lineEnemies[lineEnemyIndex] = new LineEnemy(xpos,ypos);
-	lineEnemyIndex++;
+	lineEnemies[lineEnemies.length] = new LineEnemy(xpos,ypos);
 }
 
 
@@ -347,7 +408,7 @@ function Keyboard(){
 		if(pressedKeys[VK_LEFT] || pressedKeys[VK_A]){
 			player.vx -= player.speed;
 		}
-		else{
+		else if(!(pressedKeys[VK_LEFT] || pressedKeys[VK_A])){
 		}
 		
 		//Move Down (DOWN or S)
@@ -366,13 +427,13 @@ function Keyboard(){
 		
 		//Block (SPACEBAR)
 		if(pressedKeys[VK_SPACEBAR] && !isPressing){
+			alert("KYOPSPACE");
 			isPressing = true;
-			
 			if(!player.isBlocking){
 				player.block();
 			}
 		}
-		else{
+		else if(!(pressedKeys[VK_SPACEBAR] && !isPressing)){
 			isPressing = false;
 		}
 		
@@ -389,6 +450,7 @@ window.onkeyup = function(e){
 	e=e||event;
 	pressedKeys[e.keyCode] = false;
 };
+
 
 keyboard = new Keyboard();
 
@@ -431,9 +493,6 @@ function render(){
 	for(var i = 0; i<followEnemies.length; i++){
 		followEnemies[i].render();
 	}
-	
-	daux.clearRect(0,0,auxcanvas.width,auxcanvas.height);
-	daux.fillText(lineEnemies.length, 600, 500);
 	
 }
 

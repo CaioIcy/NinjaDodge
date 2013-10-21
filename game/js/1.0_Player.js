@@ -3,8 +3,10 @@ function Player(x, y){
 	this.y = y;
 	this.vx = 0;
 	this.vy = 0;
+	this.speed = STARTING_PLAYER_VELOCITY;
 	this.sprite = playerSprite;
 	this.isBlocking = false;
+	this.blockRadius = this.sprite.width + BLOCK_RADIUS;
 	
 	//Update
 	this.update = function(){
@@ -27,10 +29,9 @@ function Player(x, y){
 		
 		var blockX = this.x + (this.sprite.width/2);
 		var blockY = this.y + (this.sprite.height/2);
-		var blockRadius = this.sprite.width + BLOCK_RADIUS;
 	
 		daux.beginPath();
-		daux.arc(blockX, blockY, blockRadius, 0, Math.PI*2, true); 
+		daux.arc(blockX, blockY, this.blockRadius, 0, Math.PI*2, true); 
 		daux.stroke();
 		
 		setTimeout(function(){

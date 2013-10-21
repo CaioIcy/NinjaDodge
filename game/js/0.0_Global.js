@@ -4,12 +4,21 @@ var d = canvas.getContext("2d");
 var auxcanvas = document.getElementById("auxcanvas");
 var daux = auxcanvas.getContext("2d");
 
-var PLAYER_VELOCITY = 0.0095;
+var ENEMY_VELOCITY = 0.7;
+var MAX_ENEMY_VELOCITY = 3;
+var STARTING_PLAYER_VELOCITY = 0.0095;
 var PLAYER_FRICTION = 0.987;
 var BLOCK_RADIUS = 10;
 var BLOCK_DELAY = 1000; // in milliseconds
 
+var SPAWN_LINE_ENEMY_DELAY = 400.0; //in microseconds
+var SPAWN_FOLLOW_ENEMY_DELAY = 1500.0; //in microseconds
+
 var pressedKeys = [];
+
+function randomize(limit){
+	return Math.floor(Math.random()*limit)+1;
+}
 
 //////////////////////////////
 /*

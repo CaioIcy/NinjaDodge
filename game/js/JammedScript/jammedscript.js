@@ -1,16 +1,25 @@
-// Jamming from file: 0_Global.js
+// Jamming from file: 0.0_Global.js
 var canvas = document.getElementById("canvas");
 var d = canvas.getContext("2d");
 
 var auxcanvas = document.getElementById("auxcanvas");
 var daux = auxcanvas.getContext("2d");
 
-var PLAYER_VELOCITY = 0.0095;
+var ENEMY_VELOCITY = 0.7;
+var MAX_ENEMY_VELOCITY = 3;
+var STARTING_PLAYER_VELOCITY = 0.0095;
 var PLAYER_FRICTION = 0.987;
 var BLOCK_RADIUS = 10;
 var BLOCK_DELAY = 1000; // in milliseconds
 
+var SPAWN_LINE_ENEMY_DELAY = 400.0; //in microseconds
+var SPAWN_FOLLOW_ENEMY_DELAY = 900.0; //in microseconds
+
 var pressedKeys = [];
+
+function randomize(limit){
+	return Math.floor(Math.random()*limit)+1;
+}
 
 //////////////////////////////
 /*
@@ -120,18 +129,26 @@ var VK_BACKSLASH_PIPE = 220;
 var VK_CLOSEBRACKETS = 221;
 var VK_QUOTES = 222;
 
-// Jamming from file: 1_Sprites.js
+// Jamming from file: 0.1_Sprites.js
 var playerSprite = new Image();
 playerSprite.src = "res/Player.png";
 
-// Jamming from file: 2_Player.js
+var enemyFollowSprite = new Image();
+enemyFollowSprite.src = "res/FollowEnemy.png";
+
+var enemyLineSprite = new Image();
+enemyLineSprite.src = "res/LineEnemy.png";
+
+// Jamming from file: 1.0_Player.js
 function Player(x, y){
 	this.x = x;
 	this.y = y;
 	this.vx = 0;
 	this.vy = 0;
+	this.speed = STARTING_PLAYER_VELOCITY;
 	this.sprite = playerSprite;
 	this.isBlocking = false;
+	this.blockRadius = this.sprite.width + BLOCK_RADIUS;
 	
 	//Update
 	this.update = function(){
@@ -154,10 +171,9 @@ function Player(x, y){
 		
 		var blockX = this.x + (this.sprite.width/2);
 		var blockY = this.y + (this.sprite.height/2);
-		var blockRadius = this.sprite.width + BLOCK_RADIUS;
 	
 		daux.beginPath();
-		daux.arc(blockX, blockY, blockRadius, 0, Math.PI*2, true); 
+		daux.arc(blockX, blockY, this.blockRadius, 0, Math.PI*2, true); 
 		daux.stroke();
 		
 		setTimeout(function(){
@@ -176,35 +192,159 @@ var PLAYER_START_X = (canvas.width/2) - (playerSprite.width/2);
 var PLAYER_START_Y = (canvas.height/2) - (playerSprite.height/2);
 player = new Player(PLAYER_START_X, PLAYER_START_Y);
 
-// Jamming from file: 3_Keyboard.js
+// Jamming from file: 1.1_FollowEnemy.js
+function FollowEnemy(x, y){
+	this.x = x;
+	this.y = y;
+
+	this.sprite = enemyFollowSprite;
+	this.speed = ENEMY_VELOCITY;
+	
+	//Update
+	this.update = function(){
+		var xToFollow = player.x - this.x;
+		var yToFollow = player.y - this.y;
+		
+		var hypotenuse = Math.sqrt( (xToFollow*xToFollow)+(yToFollow*yToFollow) );
+		hypotenuse = (hypotenuse==0) ? 1 : hypotenuse;
+		
+		xToFollow /= hypotenuse;
+		yToFollow /= hypotenuse;
+		
+		this.x += xToFollow*this.speed;
+		this.y += yToFollow*this.speed;
+	};
+	
+	//Render
+	this.render = function(){
+		d.drawImage(this.sprite, this.x, this.y, this.sprite.width, this.sprite.height);
+	};
+	
+}
+
+var followEnemyIndex = 0;
+var followEnemies = [];
+
+function createFollowEnemy(){
+
+	var xpos = 0;
+	var ypos = 0;
+	
+	var random = randomize(4); //1,2,3,4
+	if(random == 1){ //Up
+		xpos = randomize(canvas.width);
+		ypos = 0 - enemyFollowSprite.height;
+	}
+	else if(random == 2){ //Left
+		xpos = 0 - enemyFollowSprite.width;
+		ypos = randomize(canvas.height);
+	}
+	else if(random == 3){ //Right
+		xpos = canvas.width;
+		ypos = randomize(canvas.height);
+	}
+	else if(random == 4){ // Down
+		xpos = randomize(canvas.width);
+		ypos = canvas.height;
+	}
+	else{
+		alert("Error: FollowEnemy -> createFollowEnemy");
+	}
+	
+	followEnemies[followEnemyIndex] = new FollowEnemy(xpos,ypos);
+	followEnemyIndex++;
+}
+
+// Jamming from file: 1.2_LineEnemy.js
+function LineEnemy(x, y){
+	this.x = x;
+	this.y = y;
+	this.sprite = enemyLineSprite;
+	this.speed = ENEMY_VELOCITY;
+	
+	this.xToFollow = player.x - this.x;
+	this.yToFollow = player.y - this.y;
+	this.hypotenuse = Math.sqrt( (this.xToFollow*this.xToFollow)+(this.yToFollow*this.yToFollow) );
+	this.hypotenuse = (this.hypotenuse==0) ? 1 : this.hypotenuse;
+	this.xToFollow /= this.hypotenuse;
+	this.yToFollow /= this.hypotenuse;
+	
+	//Update
+	this.update = function(){
+		this.x += this.xToFollow*this.speed;
+		this.y += this.yToFollow*this.speed;
+	};
+	
+	//Render
+	this.render = function(){
+		d.drawImage(this.sprite, this.x, this.y, this.sprite.width, this.sprite.height);
+	};
+	
+}
+
+var lineEnemyIndex = 0;
+var lineEnemies = [];
+
+function createLineEnemy(){
+
+	var xpos = 0;
+	var ypos = 0;
+	
+	var random = randomize(4); //1,2,3,4
+	if(random == 1){ //Up
+		xpos = randomize(canvas.width);
+		ypos = 0 - enemyLineSprite.height;
+	}
+	else if(random == 2){ //Left
+		xpos = 0 - enemyLineSprite.width;
+		ypos = randomize(canvas.height);
+	}
+	else if(random == 3){ //Right
+		xpos = canvas.width;
+		ypos = randomize(canvas.height);
+	}
+	else if(random == 4){ // Down
+		xpos = randomize(canvas.width);
+		ypos = canvas.height;
+	}
+	else{
+		alert("Error: LineEnemy -> createLineEnemy");
+	}
+	
+	lineEnemies[lineEnemyIndex] = new LineEnemy(xpos,ypos);
+	lineEnemyIndex++;
+}
+
+
+// Jamming from file: 2.0_Keyboard.js
 function Keyboard(){
 
 	this.updateKeyInput = function(){
 	
 		//Move Up (UP or W)
 		if(pressedKeys[VK_UP] || pressedKeys[VK_W]){
-			player.vy -= PLAYER_VELOCITY;
+			player.vy -= player.speed;
 		}
 		else{
 		}
 
 		//Move Left (LEFT or A)
 		if(pressedKeys[VK_LEFT] || pressedKeys[VK_A]){
-			player.vx -= PLAYER_VELOCITY;
+			player.vx -= player.speed;
 		}
 		else{
 		}
 		
 		//Move Down (DOWN or S)
 		if(pressedKeys[VK_DOWN] || pressedKeys[VK_S]){
-			player.vy += PLAYER_VELOCITY;
+			player.vy += player.speed;
 		}
 		else{
 		}
 		
 		//Move Right (RIGHT or D)
 		if(pressedKeys[VK_RIGHT] || pressedKeys[VK_D]){
-			player.vx += PLAYER_VELOCITY;
+			player.vx += player.speed;
 		}
 		else{
 		}
@@ -237,17 +377,47 @@ window.onkeyup = function(e){
 
 keyboard = new Keyboard();
 
-// Jamming from file: 4_Game.js
+// Jamming from file: 3.0_Game.js
+var lineStart = window.performance.now();
+var followStart = window.performance.now();
+
 function update(){
 	keyboard.updateKeyInput();
 	player.update();
+	
+	var lineEnd = window.performance.now();
+	if( (lineEnd - lineStart) > SPAWN_LINE_ENEMY_DELAY){
+		createLineEnemy();
+		lineStart = lineEnd;
+	}
+	
+	var followEnd = window.performance.now();
+	if( (followEnd - followStart) > SPAWN_FOLLOW_ENEMY_DELAY){
+		createFollowEnemy();
+		followStart = followEnd;
+	}
+	
+	for(var i = 0; i<lineEnemies.length; i++){
+		lineEnemies[i].update();
+	}
+	for(var i = 0; i<followEnemies.length; i++){
+		followEnemies[i].update();
+	}
+	
 }
 
 function render(){
 	d.clearRect(0, 0, canvas.width, canvas.height);
 	player.render();
+		
+	for(var i = 0; i<lineEnemies.length; i++){
+		lineEnemies[i].render();
+	}
+	for(var i = 0; i<followEnemies.length; i++){
+		followEnemies[i].render();
+	}
+	
 }
-
 
 window.setInterval("update()",60/1000);
 window.setInterval("render()",1);

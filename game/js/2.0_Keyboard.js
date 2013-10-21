@@ -4,28 +4,28 @@ function Keyboard(){
 	
 		//Move Up (UP or W)
 		if(pressedKeys[VK_UP] || pressedKeys[VK_W]){
-			player.vy -= PLAYER_VELOCITY;
+			player.vy -= player.speed;
 		}
 		else{
 		}
 
 		//Move Left (LEFT or A)
 		if(pressedKeys[VK_LEFT] || pressedKeys[VK_A]){
-			player.vx -= PLAYER_VELOCITY;
+			player.vx -= player.speed;
 		}
 		else{
 		}
 		
 		//Move Down (DOWN or S)
 		if(pressedKeys[VK_DOWN] || pressedKeys[VK_S]){
-			player.vy += PLAYER_VELOCITY;
+			player.vy += player.speed;
 		}
 		else{
 		}
 		
 		//Move Right (RIGHT or D)
 		if(pressedKeys[VK_RIGHT] || pressedKeys[VK_D]){
-			player.vx += PLAYER_VELOCITY;
+			player.vx += player.speed;
 		}
 		else{
 		}

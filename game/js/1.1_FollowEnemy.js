@@ -18,6 +18,8 @@ function FollowEnemy(x, y){
 		
 		this.x += xToFollow*this.speed;
 		this.y += yToFollow*this.speed;
+		
+		
 	};
 	
 	//Render

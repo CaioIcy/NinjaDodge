@@ -11,10 +11,20 @@ function LineEnemy(x, y){
 	this.xToFollow /= this.hypotenuse;
 	this.yToFollow /= this.hypotenuse;
 	
+	//Destroy
+	this.destroy = function(){
+		lineEnemies.splice(lineEnemies.indexOf(this), 1);
+		lineEnemyIndex--;
+	};
+	
 	//Update
 	this.update = function(){
 		this.x += this.xToFollow*this.speed;
 		this.y += this.yToFollow*this.speed;
+		
+		if(this.x > canvas.width+50 || this.x < -50 || this.y > canvas.height+50 || this.y < -50){
+			this.destroy();
+		}
 	};
 	
 	//Render

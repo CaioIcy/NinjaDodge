@@ -6,7 +6,8 @@ function Player(x, y){
 	this.speed = STARTING_PLAYER_VELOCITY;
 	this.sprite = playerSprite;
 	this.isBlocking = false;
-	this.blockRadius = this.sprite.width + BLOCK_RADIUS;
+	//alert("PLAYER_SPRITE_WIDTH (" + PLAYER_SPRITE_WIDTH + ") + BLOCK_RADIUS (" + BLOCK_RADIUS + ") = " + (this.sprite.width+BLOCK_RADIUS));
+	this.blockRadius = PLAYER_SPRITE_WIDTH + BLOCK_RADIUS;
 	
 	//Update
 	this.update = function(){

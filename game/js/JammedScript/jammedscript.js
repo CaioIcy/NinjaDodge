@@ -9,11 +9,13 @@ var ENEMY_VELOCITY = 0.7;
 var MAX_ENEMY_VELOCITY = 3;
 var STARTING_PLAYER_VELOCITY = 0.0095;
 var PLAYER_FRICTION = 0.987;
-var BLOCK_RADIUS = 10;
+var BLOCK_RADIUS = 0;
 var BLOCK_DELAY = 1000; // in milliseconds
 
-var SPAWN_LINE_ENEMY_DELAY = 400.0; //in microseconds
-var SPAWN_FOLLOW_ENEMY_DELAY = 900.0; //in microseconds
+var PLAYER_SPRITE_WIDTH = 30;
+
+var SPAWN_LINE_ENEMY_DELAY = 1000.0; //in microseconds
+var SPAWN_FOLLOW_ENEMY_DELAY = 1500.0; //in microseconds
 
 var pressedKeys = [];
 
@@ -148,7 +150,8 @@ function Player(x, y){
 	this.speed = STARTING_PLAYER_VELOCITY;
 	this.sprite = playerSprite;
 	this.isBlocking = false;
-	this.blockRadius = this.sprite.width + BLOCK_RADIUS;
+	//alert("PLAYER_SPRITE_WIDTH (" + PLAYER_SPRITE_WIDTH + ") + BLOCK_RADIUS (" + BLOCK_RADIUS + ") = " + (this.sprite.width+BLOCK_RADIUS));
+	this.blockRadius = PLAYER_SPRITE_WIDTH + BLOCK_RADIUS;
 	
 	//Update
 	this.update = function(){
@@ -213,6 +216,8 @@ function FollowEnemy(x, y){
 		
 		this.x += xToFollow*this.speed;
 		this.y += yToFollow*this.speed;
+		
+		
 	};
 	
 	//Render
@@ -269,10 +274,20 @@ function LineEnemy(x, y){
 	this.xToFollow /= this.hypotenuse;
 	this.yToFollow /= this.hypotenuse;
 	
+	//Destroy
+	this.destroy = function(){
+		lineEnemies.splice(lineEnemies.indexOf(this), 1);
+		lineEnemyIndex--;
+	};
+	
 	//Update
 	this.update = function(){
 		this.x += this.xToFollow*this.speed;
 		this.y += this.yToFollow*this.speed;
+		
+		if(this.x > canvas.width+50 || this.x < -50 || this.y > canvas.height+50 || this.y < -50){
+			this.destroy();
+		}
 	};
 	
 	//Render
@@ -416,6 +431,9 @@ function render(){
 	for(var i = 0; i<followEnemies.length; i++){
 		followEnemies[i].render();
 	}
+	
+	daux.clearRect(0,0,auxcanvas.width,auxcanvas.height);
+	daux.fillText(lineEnemies.length, 600, 500);
 	
 }
 

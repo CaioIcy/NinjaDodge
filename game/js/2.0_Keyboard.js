@@ -32,7 +32,6 @@ function Keyboard(){
 		
 		//Block (SPACEBAR)
 		if(pressedKeys[VK_SPACEBAR] && !isPressing){
-			alert("KYOPSPACE");
 			isPressing = true;
 			if(!player.isBlocking){
 				player.block();

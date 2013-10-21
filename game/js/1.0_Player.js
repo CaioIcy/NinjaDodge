@@ -42,13 +42,15 @@ function Player(x, y){
 		setTimeout(function(){
 			daux.clearRect(0, 0, auxcanvas.width, auxcanvas.height);
 		}, 50);
-		
+		blockEnable(this);
+	};
+	
+}
+
+function blockEnable(player){
 		setTimeout(function(){
 			player.isBlocking = false;
 		}, BLOCK_DELAY);
-		
-	};
-	
 }
 
 function checkEnemiesCollision(player){
@@ -61,7 +63,7 @@ function checkEnemiesCollision(player){
 		
 		
 	for(var i = 0; i<followEnemies.length; i++){
-		if( circleCollision(this, followEnemies[i]) ){
+		if( circleCollision(player, followEnemies[i]) ){
 			followEnemies[i].destroy();
 			alert("collided follow: " + i);
 		}

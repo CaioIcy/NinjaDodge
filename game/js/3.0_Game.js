@@ -4,7 +4,6 @@ var followStart = window.performance.now();
 function update(){
 	keyboard.updateKeyInput();
 	player.update();
-
 	
 	var lineEnd = window.performance.now();
 	if( (lineEnd - lineStart) > SPAWN_LINE_ENEMY_DELAY){
@@ -39,7 +38,6 @@ function render(){
 	}
 	
 }
-
 
 window.setInterval("update()",60/1000);
 window.setInterval("render()",1);

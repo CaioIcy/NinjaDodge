@@ -21,17 +21,8 @@ var SPAWN_FOLLOW_ENEMY_DELAY = 1500.0; //in microseconds
 
 var pressedKeys = [];
 
-var mouseX;
-var mouseY;
-
 function randomize(limit){
 	return Math.floor(Math.random()*limit)+1;
-}
-
-window.onmousemove = function(e){
-	e=e||event;
-	mouseX = e.clientX - 284 ;
-	mouseY = e.clientY;
 }
 
 function circleCollision(circle1, circle2){

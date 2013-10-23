@@ -41,13 +41,6 @@ function Keyboard(){
 			isPressing = false;
 		}
 		
-		
-		if(pressedKeys[VK_F]){
-			//alert("X: " + mouseX + "  Y: " + mouseY);
-			player.x = mouseX;
-			player.y = mouseY;
-		}
-		
 	};
 	
 }

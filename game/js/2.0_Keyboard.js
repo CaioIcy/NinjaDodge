@@ -42,10 +42,11 @@ function Keyboard(){
 		}
 		
 		
-		if(pressedKeys[VK_F]){
+		if(pressedKeys[VK_F] && allowTeleport){
 			//alert("X: " + mouseX + "  Y: " + mouseY);
 			player.x = mouseX;
 			player.y = mouseY;
+			allowTeleport = false;
 		}
 		
 	};

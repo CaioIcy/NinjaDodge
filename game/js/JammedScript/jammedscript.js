@@ -22,8 +22,17 @@ var SPAWN_FOLLOW_ENEMY_DELAY = 1500.0; //in microseconds
 
 var pressedKeys = [];
 
+var mouseX;
+var mouseY;
+
 function randomize(limit){
 	return Math.floor(Math.random()*limit)+1;
+}
+
+window.onmousemove = function(e){
+	e=e||event;
+	mouseX = e.clientX - 284 ;
+	mouseY = e.clientY;
 }
 
 function circleCollision(circle1, circle2){
@@ -438,6 +447,13 @@ function Keyboard(){
 			isPressing = false;
 		}
 		
+		
+		if(pressedKeys[VK_F]){
+			//alert("X: " + mouseX + "  Y: " + mouseY);
+			player.x = mouseX;
+			player.y = mouseY;
+		}
+		
 	};
 	
 }
@@ -462,6 +478,7 @@ var followStart = window.performance.now();
 function update(){
 	keyboard.updateKeyInput();
 	player.update();
+
 	
 	var lineEnd = window.performance.now();
 	if( (lineEnd - lineStart) > SPAWN_LINE_ENEMY_DELAY){
@@ -496,6 +513,7 @@ function render(){
 	}
 	
 }
+
 
 window.setInterval("update()",60/1000);
 window.setInterval("render()",1);

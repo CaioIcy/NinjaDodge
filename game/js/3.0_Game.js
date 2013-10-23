@@ -24,12 +24,7 @@ function update(){
 	for(var i = 0; i<followEnemies.length; i++){
 		followEnemies[i].update();
 	}
-	time();
 	
-	if(seconds>=20){
-		allowTeleport = true;
-		seconds = 0;
-	}
 }
 
 function render(){
@@ -45,16 +40,6 @@ function render(){
 	
 }
 
-var count = 0;
-
-function time(){
-	count++;
-
-	if(count%120==0){
-		seconds++;
-	}
-	return seconds;
-}
 
 window.setInterval("update()",60/1000);
 window.setInterval("render()",1);

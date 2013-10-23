@@ -22,11 +22,8 @@ var SPAWN_FOLLOW_ENEMY_DELAY = 1500.0; //in microseconds
 
 var pressedKeys = [];
 
-var seconds = 0;
-
 var mouseX;
 var mouseY;
-var allowTeleport = true;
 
 function randomize(limit){
 	return Math.floor(Math.random()*limit)+1;
@@ -198,7 +195,6 @@ function Player(x, y){
 	//Render
 	this.render = function(){
 		d.drawImage(this.sprite, this.x, this.y, this.sprite.width, this.sprite.height);
-		d.fillText(seconds,330,30);
 	};
 	
 	//Block
@@ -452,11 +448,10 @@ function Keyboard(){
 		}
 		
 		
-		if(pressedKeys[VK_F] && allowTeleport){
+		if(pressedKeys[VK_F]){
 			//alert("X: " + mouseX + "  Y: " + mouseY);
 			player.x = mouseX;
 			player.y = mouseY;
-			allowTeleport = false;
 		}
 		
 	};
@@ -503,12 +498,7 @@ function update(){
 	for(var i = 0; i<followEnemies.length; i++){
 		followEnemies[i].update();
 	}
-	time();
 	
-	if(seconds>=20){
-		allowTeleport = true;
-		seconds = 0;
-	}
 }
 
 function render(){
@@ -524,16 +514,6 @@ function render(){
 	
 }
 
-var count = 0;
-
-function time(){
-	count++;
-
-	if(count%120==0){
-		seconds++;
-	}
-	return seconds;
-}
 
 window.setInterval("update()",60/1000);
 window.setInterval("render()",1);

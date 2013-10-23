@@ -23,7 +23,6 @@ function Player(x, y){
 	//Render
 	this.render = function(){
 		d.drawImage(this.sprite, this.x, this.y, this.sprite.width, this.sprite.height);
-		d.fillText(seconds,330,30);
 	};
 	
 	//Block

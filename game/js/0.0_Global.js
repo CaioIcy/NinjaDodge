@@ -21,11 +21,8 @@ var SPAWN_FOLLOW_ENEMY_DELAY = 1500.0; //in microseconds
 
 var pressedKeys = [];
 
-var seconds = 0;
-
 var mouseX;
 var mouseY;
-var allowTeleport = true;
 
 function randomize(limit){
 	return Math.floor(Math.random()*limit)+1;

@@ -13,7 +13,7 @@ function Mouse() {
 		this.my = y;
 	}
 	
-	this.mouseClick = function(){
+	this.teleportToMouse = function(){
 		var mmx = this.mx;
 		var mmy = this.my;
 		var range = player.teleportRange;
@@ -32,6 +32,13 @@ function Mouse() {
 		daux.clearRect(canvas.width-60, 10, 40, 40);
 		daux.fillText("mX: " + this.mx, canvas.width-60, 20);
 		daux.fillText("mY: " + this.my, canvas.width-60, 40);
+	}
+	
+	this.update(){
+		if(pressedKeys[VK_F] && allowTeleport){
+			this.teleportToMouse();
+			allowTeleport = false;
+		}
 	}
 
 }
@@ -52,9 +59,9 @@ function mouseXY(e) {
 		mouse.setXY(mouseX, mouseY);
 }
 
-function doMouseClick(e){
+function doMouseClick(){
 	mouse.mouseClick();
 }
 
 window.addEventListener('mousemove', mouseXY, false);
-window.addEventListener('mousedown', doMouseClick, false);
+

@@ -21,7 +21,7 @@ var STARTING_PLAYER_VELOCITY = 0.0095;
 var BLOCK_RADIUS = 5;
 var BLOCK_DELAY = 1000; // in milliseconds
 var PLAYER_SPRITE_WIDTH = 30;
-var TELEPORT = 100;
+var TELEPORT = 50000;
 
 // Enemy
 var ENEMY_VELOCITY = 0.7;
@@ -29,6 +29,9 @@ var MAX_ENEMY_VELOCITY = 3;
 var ENEMY_SPRITE_WIDTH = 30;
 var SPAWN_LINE_ENEMY_DELAY = 1000.0; //in microseconds
 var SPAWN_FOLLOW_ENEMY_DELAY = 1500.0; //in microseconds
+
+var seconds = 0;
+var allowTeleport = true;
 
 // Jamming from file: 0.1_Sprites.js
 /* *************************
@@ -483,6 +486,8 @@ function Keyboard(){
 			isPressing = false;
 		}
 		
+
+		
 	};
 	
 }
@@ -556,12 +561,12 @@ function mouseXY(e) {
 		mouse.setXY(mouseX, mouseY);
 }
 
-function doMouseClick(e){
+function doMouseClick(){
 	mouse.mouseClick();
 }
 
 window.addEventListener('mousemove', mouseXY, false);
-window.addEventListener('mousedown', doMouseClick, false);
+
 
 // Jamming from file: 3.0_Game.js
 /* *************************
@@ -570,6 +575,7 @@ window.addEventListener('mousedown', doMouseClick, false);
 
 var lineStart = window.performance.now();
 var followStart = window.performance.now();
+var timeTeleportStart = window.performance.now();
 
 function update(){
 	keyboard.updateKeyInput();
@@ -594,7 +600,18 @@ function update(){
 		followEnemies[i].update();
 	}
 	
-}
+	if(pressedKeys[VK_F] && allowTeleport){
+		mouse.mouseClick();
+		allowTeleport = false;
+	}
+ 	
+	timeTeleportEnd = window.performance.now();
+	if(( timeTeleportEnd - timeTeleportStart ) > TELEPORT){
+		allowTeleport = true;
+		timeTeleportStart = timeTeleportEnd;
+	}
+	
+ }
 
 function render(){
 	d.clearRect(0, 0, canvas.width, canvas.height);
@@ -618,6 +635,7 @@ window.addEventListener('load', initialize, false);
 
 window.setInterval("update()",60/1000);
 window.setInterval("render()",1);
+
 
 
 

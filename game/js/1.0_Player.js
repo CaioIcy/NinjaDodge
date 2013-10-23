@@ -1,7 +1,10 @@
+/* *************************
+ * CLASS: Player
+ * *************************/
+
 function Player(x, y){
 	this.x = x;
 	this.y = y;
-	
 	
 	this.vx = 0;
 	this.vy = 0;
@@ -11,6 +14,16 @@ function Player(x, y){
 	this.blockRadius = (PLAYER_SPRITE_WIDTH/2) + BLOCK_RADIUS;
 	this.radius = PLAYER_SPRITE_WIDTH/2;
 	
+	this.teleportRange = 100;
+	
+	//Check Canvas Boundaries
+	this.checkCanvasBoundaries = function(){
+		if(this.x >= canvas.width) this.x = canvas.width - playerSprite.width;
+		if(this.x <= 0) this.x = 0;
+		if(this.y >= canvas.height) this.y = canvas.height - playerSprite.height;
+		if(this.y <= 0) this.y = 0;
+	}
+	
 	//Update
 	this.update = function(){
 		this.vx *= PLAYER_FRICTION;
@@ -18,6 +31,9 @@ function Player(x, y){
 		
 		this.vy *= PLAYER_FRICTION;
 		this.y += this.vy;
+		
+		this.checkCanvasBoundaries();
+		
 	};
 	
 	//Render
@@ -57,7 +73,7 @@ function checkEnemiesCollision(player){
 	for(var i = 0; i<lineEnemies.length; i++){
 		if( circleCollision(player, lineEnemies[i]) ){
 			lineEnemies[i].destroy();
-			alert("collided line: " + i);
+			//alert("collided line: " + i);
 		}
 	}
 		
@@ -65,7 +81,7 @@ function checkEnemiesCollision(player){
 	for(var i = 0; i<followEnemies.length; i++){
 		if( circleCollision(player, followEnemies[i]) ){
 			followEnemies[i].destroy();
-			alert("collided follow: " + i);
+			//alert("collided follow: " + i);
 		}
 	}	
 }

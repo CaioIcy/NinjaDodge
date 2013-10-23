@@ -1,3 +1,7 @@
+/* *************************
+ * CLASS: FollowEnemy
+ * *************************/
+
 function FollowEnemy(x, y){
 	this.x = x;
 	this.y = y;

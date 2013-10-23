@@ -1,3 +1,7 @@
+/* *************************
+ * CLASS: Keyboard
+ * *************************/
+
 function Keyboard(){
 
 	this.updateKeyInput = function(){
@@ -46,14 +50,15 @@ function Keyboard(){
 }
 
 window.onkeydown = function(e){
+	if(!e) var e = window.onkeydown;
 	e=e||event;
 	pressedKeys[e.keyCode] = true;
 };
 
 window.onkeyup = function(e){
+	if(!e) var e = window.onkeyup;
 	e=e||event;
 	pressedKeys[e.keyCode] = false;
 };
-
 
 keyboard = new Keyboard();

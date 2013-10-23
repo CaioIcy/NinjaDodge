@@ -1,51 +1,54 @@
 // Jamming from file: 0.0_Global.js
+/* *************************
+ * Variables / Constants
+ * *************************/
+
+// Canvas/Context
 var canvas = document.getElementById("canvas");
 var d = canvas.getContext("2d");
-
 var auxcanvas = document.getElementById("auxcanvas");
 var daux = auxcanvas.getContext("2d");
 
+// Auxiliary global index
 var i = 0;
 
-var ENEMY_VELOCITY = 0.7;
-var MAX_ENEMY_VELOCITY = 3;
-var STARTING_PLAYER_VELOCITY = 0.0095;
+// Keystrokes array
+var pressedKeys = [];
+
+// Player
 var PLAYER_FRICTION = 0.987;
+var STARTING_PLAYER_VELOCITY = 0.0095;
 var BLOCK_RADIUS = 5;
 var BLOCK_DELAY = 1000; // in milliseconds
-
 var PLAYER_SPRITE_WIDTH = 30;
-var ENEMY_SPRITE_WIDTH = 30;
+var TELEPORT = 100;
 
+// Enemy
+var ENEMY_VELOCITY = 0.7;
+var MAX_ENEMY_VELOCITY = 3;
+var ENEMY_SPRITE_WIDTH = 30;
 var SPAWN_LINE_ENEMY_DELAY = 1000.0; //in microseconds
 var SPAWN_FOLLOW_ENEMY_DELAY = 1500.0; //in microseconds
 
-var pressedKeys = [];
+// Jamming from file: 0.1_Sprites.js
+/* *************************
+ * Game Images
+ * *************************/
 
-function randomize(limit){
-	return Math.floor(Math.random()*limit)+1;
-}
+var playerSprite = new Image();
+playerSprite.src = "res/Player.png";
 
-function circleCollision(circle1, circle2){
+var enemyFollowSprite = new Image();
+enemyFollowSprite.src = "res/FollowEnemy.png";
 
-	var collided = false;
-	
-	var dx = (circle2.x + circle2.radius) - (circle1.x + circle1.radius);
-	var dy = (circle2.y + circle2.radius) - (circle1.y + circle1.radius);
-	var distance = Math.sqrt(Math.pow(dx,2) + Math.pow(dy,2));
+var enemyLineSprite = new Image();
+enemyLineSprite.src = "res/LineEnemy.png";
 
-	if (Math.abs(distance) <= Math.abs(circle1.radius + circle2.radius)){
-		collided = true;
-	}
-
-	return collided;
-	
-}
-
-//////////////////////////////
-/*
-  VK VALUES
-*/
+// Jamming from file: 0.2_VkValues.js
+/* *************************
+ * Virtual Keyboard Values
+ * *************************/
+ 
 //numbers (keyboard)
 var VK_0 = 48;
 var VK_1 = 49;
@@ -150,21 +153,38 @@ var VK_BACKSLASH_PIPE = 220;
 var VK_CLOSEBRACKETS = 221;
 var VK_QUOTES = 222;
 
-// Jamming from file: 0.1_Sprites.js
-var playerSprite = new Image();
-playerSprite.src = "res/Player.png";
+// Jamming from file: 0.3_Util.js
+/* *************************
+ * Several useful functions
+ * *************************/
 
-var enemyFollowSprite = new Image();
-enemyFollowSprite.src = "res/FollowEnemy.png";
+function randomize(limit){
+	return Math.floor(Math.random()*limit)+1;
+}
 
-var enemyLineSprite = new Image();
-enemyLineSprite.src = "res/LineEnemy.png";
+function circleCollision(circle1, circle2){
+
+	var collided = false;
+	
+	var dx = (circle2.x + circle2.radius) - (circle1.x + circle1.radius);
+	var dy = (circle2.y + circle2.radius) - (circle1.y + circle1.radius);
+	var distance = Math.sqrt(Math.pow(dx,2) + Math.pow(dy,2));
+
+	if (Math.abs(distance) <= Math.abs(circle1.radius + circle2.radius)){
+		collided = true;
+	}
+
+	return collided;	
+}
 
 // Jamming from file: 1.0_Player.js
+/* *************************
+ * CLASS: Player
+ * *************************/
+
 function Player(x, y){
 	this.x = x;
 	this.y = y;
-	
 	
 	this.vx = 0;
 	this.vy = 0;
@@ -174,6 +194,16 @@ function Player(x, y){
 	this.blockRadius = (PLAYER_SPRITE_WIDTH/2) + BLOCK_RADIUS;
 	this.radius = PLAYER_SPRITE_WIDTH/2;
 	
+	this.teleportRange = 100;
+	
+	//Check Canvas Boundaries
+	this.checkCanvasBoundaries = function(){
+		if(this.x >= canvas.width) this.x = canvas.width - playerSprite.width;
+		if(this.x <= 0) this.x = 0;
+		if(this.y >= canvas.height) this.y = canvas.height - playerSprite.height;
+		if(this.y <= 0) this.y = 0;
+	}
+	
 	//Update
 	this.update = function(){
 		this.vx *= PLAYER_FRICTION;
@@ -181,6 +211,9 @@ function Player(x, y){
 		
 		this.vy *= PLAYER_FRICTION;
 		this.y += this.vy;
+		
+		this.checkCanvasBoundaries();
+		
 	};
 	
 	//Render
@@ -220,7 +253,7 @@ function checkEnemiesCollision(player){
 	for(var i = 0; i<lineEnemies.length; i++){
 		if( circleCollision(player, lineEnemies[i]) ){
 			lineEnemies[i].destroy();
-			alert("collided line: " + i);
+			//alert("collided line: " + i);
 		}
 	}
 		
@@ -228,7 +261,7 @@ function checkEnemiesCollision(player){
 	for(var i = 0; i<followEnemies.length; i++){
 		if( circleCollision(player, followEnemies[i]) ){
 			followEnemies[i].destroy();
-			alert("collided follow: " + i);
+			//alert("collided follow: " + i);
 		}
 	}	
 }
@@ -238,6 +271,10 @@ var PLAYER_START_Y = (canvas.height/2) - (playerSprite.height/2);
 player = new Player(PLAYER_START_X, PLAYER_START_Y);
 
 // Jamming from file: 1.1_FollowEnemy.js
+/* *************************
+ * CLASS: FollowEnemy
+ * *************************/
+
 function FollowEnemy(x, y){
 	this.x = x;
 	this.y = y;
@@ -319,6 +356,10 @@ function createFollowEnemy(){
 }
 
 // Jamming from file: 1.2_LineEnemy.js
+/* *************************
+ * CLASS: LineEnemy
+ * *************************/
+
 function LineEnemy(x, y){
 	this.x = x;
 	this.y = y;
@@ -395,6 +436,10 @@ function createLineEnemy(){
 
 
 // Jamming from file: 2.0_Keyboard.js
+/* *************************
+ * CLASS: Keyboard
+ * *************************/
+
 function Keyboard(){
 
 	this.updateKeyInput = function(){
@@ -443,19 +488,86 @@ function Keyboard(){
 }
 
 window.onkeydown = function(e){
+	if(!e) var e = window.onkeydown;
 	e=e||event;
 	pressedKeys[e.keyCode] = true;
 };
 
 window.onkeyup = function(e){
+	if(!e) var e = window.onkeyup;
 	e=e||event;
 	pressedKeys[e.keyCode] = false;
 };
 
-
 keyboard = new Keyboard();
 
+// Jamming from file: 2.1_Mouse.js
+/* *************************
+ * CLASS: Mouse
+ * *************************/
+ 
+function Mouse() {
+
+	//this.isIE = (navigator.appName == "Microsoft Internet Explorer") ? true : false;
+	this.mx = 0;
+	this.my = 0;
+	
+	this.setXY = function(x,y){
+		this.mx = x;
+		this.my = y;
+	}
+	
+	this.mouseClick = function(){
+		var mmx = this.mx;
+		var mmy = this.my;
+		var range = player.teleportRange;
+		var dx = mmx - player.x;
+		var dy = mmy - player.y;
+		var h = Math.sqrt((dx*dx) + (dy*dy));
+		
+		dx/=h;
+		dy/=h;
+
+		player.x += dx*range;
+		player.y += dy*range;		
+	}
+	
+	this.render = function(){
+		daux.clearRect(canvas.width-60, 10, 40, 40);
+		daux.fillText("mX: " + this.mx, canvas.width-60, 20);
+		daux.fillText("mY: " + this.my, canvas.width-60, 40);
+	}
+
+}
+
+mouse = new Mouse();
+
+function mouseXY(e) {
+		e = e||event;
+		var mouseX = e.clientX - canvas.offsetLeft;
+		var mouseY = e.clientY - canvas.offsetTop;
+		
+		mouseX = (mouseX<=0) ? 0 : mouseX;
+		mouseX = (mouseX>=canvas.width) ? canvas.width : mouseX;
+		
+		mouseY = (mouseY<=0) ? 0 : mouseY;
+		mouseY = (mouseY>=canvas.height) ? canvas.height : mouseY;
+		
+		mouse.setXY(mouseX, mouseY);
+}
+
+function doMouseClick(e){
+	mouse.mouseClick();
+}
+
+window.addEventListener('mousemove', mouseXY, false);
+window.addEventListener('mousedown', doMouseClick, false);
+
 // Jamming from file: 3.0_Game.js
+/* *************************
+ * Main
+ * *************************/
+
 var lineStart = window.performance.now();
 var followStart = window.performance.now();
 
@@ -486,6 +598,8 @@ function update(){
 
 function render(){
 	d.clearRect(0, 0, canvas.width, canvas.height);
+	
+	mouse.render();
 	player.render();
 		
 	for(var i = 0; i<lineEnemies.length; i++){
@@ -497,6 +611,13 @@ function render(){
 	
 }
 
+function initialize(){
+	
+}
+window.addEventListener('load', initialize, false);
+
 window.setInterval("update()",60/1000);
 window.setInterval("render()",1);
+
+
 

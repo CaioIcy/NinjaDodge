@@ -1,3 +1,7 @@
+/* *************************
+ * Main
+ * *************************/
+
 var lineStart = window.performance.now();
 var followStart = window.performance.now();
 
@@ -28,6 +32,8 @@ function update(){
 
 function render(){
 	d.clearRect(0, 0, canvas.width, canvas.height);
+	
+	mouse.render();
 	player.render();
 		
 	for(var i = 0; i<lineEnemies.length; i++){
@@ -39,5 +45,12 @@ function render(){
 	
 }
 
+function initialize(){
+	
+}
+window.addEventListener('load', initialize, false);
+
 window.setInterval("update()",60/1000);
 window.setInterval("render()",1);
+
+

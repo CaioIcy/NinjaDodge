@@ -1,3 +1,7 @@
+/* *************************
+ * CLASS: LineEnemy
+ * *************************/
+
 function LineEnemy(x, y){
 	this.x = x;
 	this.y = y;

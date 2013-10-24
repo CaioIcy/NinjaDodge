@@ -2,8 +2,13 @@
  * Game Images
  * *************************/
 
-var playerSprite = new Image();
-playerSprite.src = "res/Player.png";
+resources.load([
+    'res/Player.png',
+    'res/FollowEnemy.png',
+	'res/LineEnemy.png',
+	'res/spritesheet.png'
+]);
+resources.onReady(initialize);
 
 var enemyFollowSprite = new Image();
 enemyFollowSprite.src = "res/FollowEnemy.png";

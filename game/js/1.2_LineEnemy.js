@@ -1,12 +1,12 @@
 /* *************************
- * CLASS: LineEnemy
+ * "CLASS": LineEnemy
  * *************************/
 
 function LineEnemy(x, y){
 	this.x = x;
 	this.y = y;
 	this.sprite = enemyLineSprite;
-	this.speed = ENEMY_VELOCITY;
+	this.speed = ENEMY_VELOCITY * 1.5;
 	this.radius = ENEMY_SPRITE_WIDTH/2;
 	
 	this.xToFollow = player.x - this.x;

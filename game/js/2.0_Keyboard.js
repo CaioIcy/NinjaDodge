@@ -1,48 +1,62 @@
 /* *************************
- * CLASS: Keyboard
+ * "CLASS": Keyboard
  * *************************/
 
 function Keyboard(){
 
-	this.updateKeyInput = function(){
+	this.spacebarPressed = false;
+
+	this.updateKeyInput = function(dt){
 	
 		//Move Up (UP or W)
 		if(pressedKeys[VK_UP] || pressedKeys[VK_W]){
-			player.vy -= player.speed;
+			if(player.vy > 0){
+				player.vy /= PLAYER_HANDLE
+			}
+			player.vy -= player.speed * dt;
 		}
 		else{
 		}
 
 		//Move Left (LEFT or A)
 		if(pressedKeys[VK_LEFT] || pressedKeys[VK_A]){
-			player.vx -= player.speed;
+			if(player.vx > 0){
+				player.vx /= PLAYER_HANDLE
+			}
+			player.vx -= player.speed * dt;
 		}
 		else if(!(pressedKeys[VK_LEFT] || pressedKeys[VK_A])){
 		}
 		
 		//Move Down (DOWN or S)
 		if(pressedKeys[VK_DOWN] || pressedKeys[VK_S]){
-			player.vy += player.speed;
+			if(player.vy < 0){
+				player.vy /= PLAYER_HANDLE
+			}
+			player.vy += player.speed * dt;
 		}
 		else{
 		}
 		
 		//Move Right (RIGHT or D)
 		if(pressedKeys[VK_RIGHT] || pressedKeys[VK_D]){
-			player.vx += player.speed;
+			if(player.vx < 0){
+				player.vx /= PLAYER_HANDLE
+			}
+			player.vx += player.speed * dt;
 		}
 		else{
 		}
 		
 		//Block (SPACEBAR)
-		if(pressedKeys[VK_SPACEBAR] && !isPressing){
-			isPressing = true;
+		if(pressedKeys[VK_SPACEBAR] && !this.spacebarPressed){
+			this.spacebarPressed = true;
 			if(!player.isBlocking){
 				player.block();
 			}
 		}
-		else if(!(pressedKeys[VK_SPACEBAR] && !isPressing)){
-			isPressing = false;
+		else if(!(pressedKeys[VK_SPACEBAR] && !this.spacebarPressed)){
+			this.spacebarPressed = false;
 		}
 		
 
@@ -63,4 +77,4 @@ window.onkeyup = function(e){
 	pressedKeys[e.keyCode] = false;
 };
 
-keyboard = new Keyboard();
+var keyboard = new Keyboard();

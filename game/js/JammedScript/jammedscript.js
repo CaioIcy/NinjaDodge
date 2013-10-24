@@ -17,15 +17,16 @@ var pressedKeys = [];
 
 // Player
 var PLAYER_FRICTION = 0.987;
-var STARTING_PLAYER_VELOCITY = 0.0095;
+var STARTING_PLAYER_SPEED = 5;
 var BLOCK_RADIUS = 5;
 var BLOCK_DELAY = 1000; // in milliseconds
 var PLAYER_SPRITE_WIDTH = 30;
 var TELEPORT = 50000;
+var PLAYER_HANDLE = 1;
 
 // Enemy
-var ENEMY_VELOCITY = 0.7;
-var MAX_ENEMY_VELOCITY = 3;
+var ENEMY_VELOCITY = 2;
+var MAX_ENEMY_VELOCITY = 10;
 var ENEMY_SPRITE_WIDTH = 30;
 var SPAWN_LINE_ENEMY_DELAY = 1000.0; //in microseconds
 var SPAWN_FOLLOW_ENEMY_DELAY = 1500.0; //in microseconds
@@ -38,8 +39,13 @@ var allowTeleport = true;
  * Game Images
  * *************************/
 
-var playerSprite = new Image();
-playerSprite.src = "res/Player.png";
+resources.load([
+    'res/Player.png',
+    'res/FollowEnemy.png',
+	'res/LineEnemy.png',
+	'res/spritesheet.png'
+]);
+resources.onReady(initialize);
 
 var enemyFollowSprite = new Image();
 enemyFollowSprite.src = "res/FollowEnemy.png";
@@ -180,48 +186,85 @@ function circleCollision(circle1, circle2){
 	return collided;	
 }
 
+// A cross-browser requestAnimationFrame
+// See https://hacks.mozilla.org/2011/08/animating-with-javascript-from-setinterval-to-requestanimationframe/
+var requestAnimFrame = (function(){
+    return window.requestAnimationFrame    ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame    ||
+        window.oRequestAnimationFrame      ||
+        window.msRequestAnimationFrame     ||
+        function(callback){
+            window.setTimeout(callback, 1000 / 60);
+        };
+})();
+
+function renderEntity(entity) {
+    d.save();
+    d.translate(entity.x, entity.y);
+    entity.sprite.render(d);
+    d.restore();
+}
+
+function renderEntities(listOfEntities) {
+    for(i = 0; i< listOfEntities.length; i++){
+		var entity = listOfEntities[i];
+		renderEntity(entity);
+	}
+}
+
 // Jamming from file: 1.0_Player.js
 /* *************************
- * CLASS: Player
+ * "CLASS": Player
  * *************************/
 
 function Player(x, y){
 	this.x = x;
 	this.y = y;
-	
 	this.vx = 0;
 	this.vy = 0;
-	this.speed = STARTING_PLAYER_VELOCITY;
-	this.sprite = playerSprite;
+	
+	this.sprite = new Sprite('res/spritesheet.png', [0, 0], [32,32] , 16, [0,1,2,3,4,5,6,7]);
+							//url,                   pos,    size,  speed, frames,           dir, once
+
+	this.speed = STARTING_PLAYER_SPEED;
 	this.isBlocking = false;
 	this.blockRadius = (PLAYER_SPRITE_WIDTH/2) + BLOCK_RADIUS;
 	this.radius = PLAYER_SPRITE_WIDTH/2;
-	
+	this.handle = PLAYER_HANDLE; // the ability to turn better
 	this.teleportRange = 100;
 	
 	//Check Canvas Boundaries
 	this.checkCanvasBoundaries = function(){
-		if(this.x >= canvas.width) this.x = canvas.width - playerSprite.width;
-		if(this.x <= 0) this.x = 0;
-		if(this.y >= canvas.height) this.y = canvas.height - playerSprite.height;
-		if(this.y <= 0) this.y = 0;
+		if(this.x + this.sprite.width >= canvas.width){
+			this.x = canvas.width - this.sprite.width;
+			this.vx /= 2;
+		}
+		else if(this.x <= 0){
+			this.x = 0;
+			this.vx /= 2;
+		}
+		if(this.y + this.sprite.height >= canvas.height){
+			this.y = canvas.height - this.sprite.height;
+			this.vy /= 2;
+		}
+		else if(this.y <= 0){
+			this.y = 0;
+			this.vy /= 2;
+		}
 	}
 	
 	//Update
-	this.update = function(){
+	this.update = function(dt){
+		this.sprite.update(dt);
+	
 		this.vx *= PLAYER_FRICTION;
-		this.x += this.vx;
-		
 		this.vy *= PLAYER_FRICTION;
+		
+		this.x += this.vx;
 		this.y += this.vy;
 		
 		this.checkCanvasBoundaries();
-		
-	};
-	
-	//Render
-	this.render = function(){
-		d.drawImage(this.sprite, this.x, this.y, this.sprite.width, this.sprite.height);
 	};
 	
 	//Block
@@ -269,13 +312,13 @@ function checkEnemiesCollision(player){
 	}	
 }
 
-var PLAYER_START_X = (canvas.width/2) - (playerSprite.width/2);
-var PLAYER_START_Y = (canvas.height/2) - (playerSprite.height/2);
-player = new Player(PLAYER_START_X, PLAYER_START_Y);
+var PLAYER_START_X = (canvas.width/2) - 32/2;
+var PLAYER_START_Y = (canvas.height/2) - 32/2;
+var player = new Player(PLAYER_START_X, PLAYER_START_Y);
 
 // Jamming from file: 1.1_FollowEnemy.js
 /* *************************
- * CLASS: FollowEnemy
+ * "CLASS": FollowEnemy
  * *************************/
 
 function FollowEnemy(x, y){
@@ -293,7 +336,7 @@ function FollowEnemy(x, y){
 	};
 	
 	//Update
-	this.update = function(){
+	this.update = function(dt){
 		var xToFollow = player.x - this.x;
 		var yToFollow = player.y - this.y;
 		
@@ -303,8 +346,8 @@ function FollowEnemy(x, y){
 		xToFollow /= hypotenuse;
 		yToFollow /= hypotenuse;
 		
-		this.x += xToFollow*this.speed;
-		this.y += yToFollow*this.speed;
+		this.x += xToFollow * this.speed;
+		this.y += yToFollow * this.speed;
 		
 		if(this.x > canvas.width+50 || this.x < -50 || this.y > canvas.height+50 || this.y < -50){
 			this.destroy();
@@ -360,14 +403,14 @@ function createFollowEnemy(){
 
 // Jamming from file: 1.2_LineEnemy.js
 /* *************************
- * CLASS: LineEnemy
+ * "CLASS": LineEnemy
  * *************************/
 
 function LineEnemy(x, y){
 	this.x = x;
 	this.y = y;
 	this.sprite = enemyLineSprite;
-	this.speed = ENEMY_VELOCITY;
+	this.speed = ENEMY_VELOCITY * 1.5;
 	this.radius = ENEMY_SPRITE_WIDTH/2;
 	
 	this.xToFollow = player.x - this.x;
@@ -440,50 +483,64 @@ function createLineEnemy(){
 
 // Jamming from file: 2.0_Keyboard.js
 /* *************************
- * CLASS: Keyboard
+ * "CLASS": Keyboard
  * *************************/
 
 function Keyboard(){
 
-	this.updateKeyInput = function(){
+	this.spacebarPressed = false;
+
+	this.updateKeyInput = function(dt){
 	
 		//Move Up (UP or W)
 		if(pressedKeys[VK_UP] || pressedKeys[VK_W]){
-			player.vy -= player.speed;
+			if(player.vy > 0){
+				player.vy /= PLAYER_HANDLE
+			}
+			player.vy -= player.speed * dt;
 		}
 		else{
 		}
 
 		//Move Left (LEFT or A)
 		if(pressedKeys[VK_LEFT] || pressedKeys[VK_A]){
-			player.vx -= player.speed;
+			if(player.vx > 0){
+				player.vx /= PLAYER_HANDLE
+			}
+			player.vx -= player.speed * dt;
 		}
 		else if(!(pressedKeys[VK_LEFT] || pressedKeys[VK_A])){
 		}
 		
 		//Move Down (DOWN or S)
 		if(pressedKeys[VK_DOWN] || pressedKeys[VK_S]){
-			player.vy += player.speed;
+			if(player.vy < 0){
+				player.vy /= PLAYER_HANDLE
+			}
+			player.vy += player.speed * dt;
 		}
 		else{
 		}
 		
 		//Move Right (RIGHT or D)
 		if(pressedKeys[VK_RIGHT] || pressedKeys[VK_D]){
-			player.vx += player.speed;
+			if(player.vx < 0){
+				player.vx /= PLAYER_HANDLE
+			}
+			player.vx += player.speed * dt;
 		}
 		else{
 		}
 		
 		//Block (SPACEBAR)
-		if(pressedKeys[VK_SPACEBAR] && !isPressing){
-			isPressing = true;
+		if(pressedKeys[VK_SPACEBAR] && !this.spacebarPressed){
+			this.spacebarPressed = true;
 			if(!player.isBlocking){
 				player.block();
 			}
 		}
-		else if(!(pressedKeys[VK_SPACEBAR] && !isPressing)){
-			isPressing = false;
+		else if(!(pressedKeys[VK_SPACEBAR] && !this.spacebarPressed)){
+			this.spacebarPressed = false;
 		}
 		
 
@@ -504,11 +561,11 @@ window.onkeyup = function(e){
 	pressedKeys[e.keyCode] = false;
 };
 
-keyboard = new Keyboard();
+var keyboard = new Keyboard();
 
 // Jamming from file: 2.1_Mouse.js
 /* *************************
- * CLASS: Mouse
+ * "CLASS": Mouse
  * *************************/
  
 function Mouse() {
@@ -520,9 +577,9 @@ function Mouse() {
 	this.setXY = function(x,y){
 		this.mx = x;
 		this.my = y;
-	}
+	};
 	
-	this.mouseClick = function(){
+	this.teleportToMouse = function(){
 		var mmx = this.mx;
 		var mmy = this.my;
 		var range = player.teleportRange;
@@ -535,28 +592,53 @@ function Mouse() {
 
 		player.x += dx*range;
 		player.y += dy*range;		
-	}
+	};
 	
 	this.render = function(){
 		daux.clearRect(canvas.width-60, 10, 40, 40);
 		daux.fillText("mX: " + this.mx, canvas.width-60, 20);
 		daux.fillText("mY: " + this.my, canvas.width-60, 40);
-	}
+	};
+	
+	this.update = function(){
+		if(pressedKeys[VK_F] && allowTeleport){
+			this.teleportToMouse();
+			allowTeleport = false;
+		}
+	};
 
 }
 
-mouse = new Mouse();
+var mouse = new Mouse();
 
 function mouseXY(e) {
 		e = e||event;
 		var mouseX = e.clientX - canvas.offsetLeft;
 		var mouseY = e.clientY - canvas.offsetTop;
 		
-		mouseX = (mouseX<=0) ? 0 : mouseX;
-		mouseX = (mouseX>=canvas.width) ? canvas.width : mouseX;
+		//mouseX = (mouseX<=0) ? 0 : mouseX;
+		//mouseX = (mouseX>=canvas.width) ? canvas.width : mouseX;
+		if(mouseX <= 0){
+			mouseX = 0;
+		}
+		else if(mouseX >= canvas.width){
+			mouseX = canvas.width;
+		}
+		else{
+			//maintain current mouseX
+		}
 		
-		mouseY = (mouseY<=0) ? 0 : mouseY;
-		mouseY = (mouseY>=canvas.height) ? canvas.height : mouseY;
+		//mouseY = (mouseY<=0) ? 0 : mouseY;
+		//mouseY = (mouseY>=canvas.height) ? canvas.height : mouseY;
+		if(mouseY <= 0){
+			mouseY = 0;
+		}
+		else if(mouseY >= canvas.height){
+			mouseY = canvas.height;
+		}
+		else{
+			//maintain current mouseY
+		}
 		
 		mouse.setXY(mouseX, mouseY);
 }
@@ -577,35 +659,37 @@ var lineStart = window.performance.now();
 var followStart = window.performance.now();
 var timeTeleportStart = window.performance.now();
 
-function update(){
-	keyboard.updateKeyInput();
-	player.update();
+function update(dt){
+	keyboard.updateKeyInput(dt);
+	player.update(dt);
+	mouse.update();
 	
+	//Spawn new line enemy
 	var lineEnd = window.performance.now();
 	if( (lineEnd - lineStart) > SPAWN_LINE_ENEMY_DELAY){
 		createLineEnemy();
 		lineStart = lineEnd;
 	}
 	
+	//Spawn new follow enemy
 	var followEnd = window.performance.now();
 	if( (followEnd - followStart) > SPAWN_FOLLOW_ENEMY_DELAY){
 		createFollowEnemy();
 		followStart = followEnd;
 	}
 	
+	//Update line enemies
 	for(var i = 0; i<lineEnemies.length; i++){
-		lineEnemies[i].update();
-	}
-	for(var i = 0; i<followEnemies.length; i++){
-		followEnemies[i].update();
+		lineEnemies[i].update(dt);
 	}
 	
-	if(pressedKeys[VK_F] && allowTeleport){
-		mouse.mouseClick();
-		allowTeleport = false;
+	//Update follow enemies
+	for(var i = 0; i<followEnemies.length; i++){
+		followEnemies[i].update(dt);
 	}
  	
-	timeTeleportEnd = window.performance.now();
+	//Update teleport time
+	var timeTeleportEnd = window.performance.now();
 	if(( timeTeleportEnd - timeTeleportStart ) > TELEPORT){
 		allowTeleport = true;
 		timeTeleportStart = timeTeleportEnd;
@@ -617,7 +701,7 @@ function render(){
 	d.clearRect(0, 0, canvas.width, canvas.height);
 	
 	mouse.render();
-	player.render();
+	renderEntity(player);
 		
 	for(var i = 0; i<lineEnemies.length; i++){
 		lineEnemies[i].render();
@@ -629,13 +713,20 @@ function render(){
 }
 
 function initialize(){
-	
+	lastTime = Date.now();
+    main();
 }
-window.addEventListener('load', initialize, false);
 
-window.setInterval("update()",60/1000);
-window.setInterval("render()",1);
+// The main game loop
+var lastTime;
+function main() {
+    var now = Date.now();
+    var dt = (now - lastTime) / 1000.0;
 
+    update(dt);
+    render();
 
-
+    lastTime = now;
+    requestAnimFrame(main);
+}
 

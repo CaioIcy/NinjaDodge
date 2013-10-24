@@ -16,15 +16,16 @@ var pressedKeys = [];
 
 // Player
 var PLAYER_FRICTION = 0.987;
-var STARTING_PLAYER_VELOCITY = 0.0095;
+var STARTING_PLAYER_SPEED = 5;
 var BLOCK_RADIUS = 5;
 var BLOCK_DELAY = 1000; // in milliseconds
 var PLAYER_SPRITE_WIDTH = 30;
 var TELEPORT = 50000;
+var PLAYER_HANDLE = 1;
 
 // Enemy
-var ENEMY_VELOCITY = 0.7;
-var MAX_ENEMY_VELOCITY = 3;
+var ENEMY_VELOCITY = 2;
+var MAX_ENEMY_VELOCITY = 10;
 var ENEMY_SPRITE_WIDTH = 30;
 var SPAWN_LINE_ENEMY_DELAY = 1000.0; //in microseconds
 var SPAWN_FOLLOW_ENEMY_DELAY = 1500.0; //in microseconds

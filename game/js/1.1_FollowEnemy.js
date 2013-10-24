@@ -1,5 +1,5 @@
 /* *************************
- * CLASS: FollowEnemy
+ * "CLASS": FollowEnemy
  * *************************/
 
 function FollowEnemy(x, y){
@@ -17,7 +17,7 @@ function FollowEnemy(x, y){
 	};
 	
 	//Update
-	this.update = function(){
+	this.update = function(dt){
 		var xToFollow = player.x - this.x;
 		var yToFollow = player.y - this.y;
 		
@@ -27,8 +27,8 @@ function FollowEnemy(x, y){
 		xToFollow /= hypotenuse;
 		yToFollow /= hypotenuse;
 		
-		this.x += xToFollow*this.speed;
-		this.y += yToFollow*this.speed;
+		this.x += xToFollow * this.speed;
+		this.y += yToFollow * this.speed;
 		
 		if(this.x > canvas.width+50 || this.x < -50 || this.y > canvas.height+50 || this.y < -50){
 			this.destroy();

@@ -13,40 +13,6 @@
 	<script type="text/javascript" src="js/JammedScript/jammedscript.js" defer></script>
 	<!--------------------------------------------->
 	
-	<script>
-
-	function aumenta(signal, camp){
-	
-	var te = document.getElementById("teleport");
-	var sp = document.getElementById("speed");
-	var st = document.getElementById("strongness");
-	
-		if(signal == "-"){
-			if(camp == "te"){
-				te.value--;
-			}
-			else if(camp == "sp"){
-				sp.value--;
-			}
-			else if(camp == "st"){
-				st.value--;
-			}
-		}
-		else if(signal == "+"){
-			if(camp == "te"){
-				te.value++;
-			}
-			else if(camp == "sp"){
-				sp.value++;
-			}
-			else if(camp == "st"){
-				st.value++;
-			}
-		}
-	}
-
-	</script>
-	
 	<div id = "values">
 	
 	<h1>Values</h1>
@@ -67,14 +33,14 @@
 
 	</div>
 	
-	<body>
+	<body oncontextmenu="return false">
 	<div id="game">
 		<center>
 			<canvas id="canvas" width="800" height="600" style = "border: 1px solid #d3d3d3;z-index: 1; position: absolute; top:30px;">
 				This text is displayed if your browser does not support HTML5 Canvas.
 			</canvas>
 			
-			<canvas id="auxcanvas" width="800" height="600" style = "z-index: 2; position: relative;">
+			<canvas id="auxcanvas" width="800" height="600" style = "z-index: 2; position: relative; top:30px;">
 				This text is displayed if your browser does not support HTML5 Canvas.
 			</canvas>
 		</center>

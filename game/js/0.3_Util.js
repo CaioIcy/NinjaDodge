@@ -91,7 +91,52 @@ function renderNumberOfEnemiesOnScreen(){
 			alert("Error: on renderNumberOfEnemiesOnScreen");
 		}
 	}
-	daux.clearRect(4,555,30,25);
-	daux.fillText("L: " + nl, 5, 565);
-	daux.fillText("F: " + nf, 5, 580);
+	daux.clearRect(4,255,30,30);
+	daux.fillText("L: " + nl, 5, 265);
+	daux.fillText("F: " + nf, 5, 280);
+}
+
+window.onmousedown = disableclick;
+function disableclick(event)
+{
+  if(event.button==2)
+   {
+     return false;    
+   }
+}
+
+function aumenta(signal, camp){
+	
+	var te = document.getElementById("teleport");
+	var sp = document.getElementById("speed");
+	var st = document.getElementById("strongness");
+	
+		if(signal == "-"){
+			if(camp == "te"){
+				te.value--;
+				player.teleportRange-=10;
+			}
+			else if(camp == "sp"){
+				sp.value--;
+				//to implement
+			}
+			else if(camp == "st"){
+				st.value--;
+				//to implement
+			}
+		}
+		else if(signal == "+"){
+			if(camp == "te"){
+				te.value++;
+				player.teleportRange+=10;
+			}
+			else if(camp == "sp"){
+				sp.value++;
+				//to implement
+			}
+			else if(camp == "st"){
+				st.value++;
+				//to implement
+			}
+		}
 }

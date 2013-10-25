@@ -47,3 +47,10 @@ function renderAll(listOfEntities) {
 		entity.render();
 	}
 }
+
+function updateAll(listOfEntities) {
+    for(i = 0; i< listOfEntities.length; i++){
+		var entity = listOfEntities[i];
+		entity.update();
+	}
+}

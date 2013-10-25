@@ -14,26 +14,18 @@ function update(dt){
 	//Spawn new line enemy
 	var lineEnd = window.performance.now();
 	if( (lineEnd - lineStart) > SPAWN_LINE_ENEMY_DELAY){
-		createLineEnemy();
+		//new LineEnemy('LINE');
 		lineStart = lineEnd;
 	}
 	
 	//Spawn new follow enemy
 	var followEnd = window.performance.now();
 	if( (followEnd - followStart) > SPAWN_FOLLOW_ENEMY_DELAY){
-		createFollowEnemy();
+		//new FollowEnemy('FOLLOW');
 		followStart = followEnd;
 	}
 	
-	//Update line enemies
-	for(var i = 0; i<lineEnemies.length; i++){
-		lineEnemies[i].update(dt);
-	}
-	
-	//Update follow enemies
-	for(var i = 0; i<followEnemies.length; i++){
-		followEnemies[i].update(dt);
-	}
+	updateAll(enemies);
  	
 	//Update teleport time
 	var timeTeleportEnd = window.performance.now();
@@ -49,23 +41,12 @@ function render(){
 	
 	mouse.render();
 	renderEntity(player);
-		
-	for(var i = 0; i<lineEnemies.length; i++){
-		lineEnemies[i].render();
-	}
-	for(var i = 0; i<followEnemies.length; i++){
-		followEnemies[i].render();
-	}
+	renderAll(enemies);
 	
 }
 
 function initialize(){
-
-	var e = new Entity(1,1);
-	e.render();
-	var p = new Player(2,2);
-	p.render();
-
+	createEverything('FOLLOW');
 	lastTime = Date.now();
     main();
 }

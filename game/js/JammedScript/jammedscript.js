@@ -206,10 +206,17 @@ function renderEntity(entity) {
     d.restore();
 }
 
-function renderEntities(listOfEntities) {
+function renderAll(listOfEntities) {
     for(i = 0; i< listOfEntities.length; i++){
 		var entity = listOfEntities[i];
-		renderEntity(entity);
+		entity.render();
+	}
+}
+
+function updateAll(listOfEntities) {
+    for(i = 0; i< listOfEntities.length; i++){
+		var entity = listOfEntities[i];
+		entity.update();
 	}
 }
 
@@ -222,13 +229,16 @@ function Entity(x, y){
 
 	this.x = x;
 	this.y = y;
+	
 	this.sprite;
+	this.speed;
+	this.radius;
 	
 	this.update = function(dt){
 	}
 	
 	this.render = function(){
-		alert(this.x);
+		renderEntity(this);
 	}
 
 	return this;
@@ -342,25 +352,102 @@ var player = new Player(PLAYER_START_X, PLAYER_START_Y);
 /* *************************
  * "CLASS": Enemy
  * *************************/
+ 
+var enemyTypes = [
+	'LINE',
+	'FOLLOW'
+];
 
-function Enemy(x,y){
+var enemies = [];
 
+function Enemy(x, y, type){
+	
 	Entity.call(this, x, y);
 	
-
+	try{
+		var validType = false;
+		for(i = 0; i < enemyTypes.length; i++){
+			if(type == enemyTypes[i]){
+				validType = true;
+				break;
+			}
+		}
+		if(validType){
+			this.type = type;
+		}
+		else{
+			throw "this type of enemy is undefined [" + type + "].";
+		}
+	} catch(e){
+		alert("Error: " + e);
+		return null;
+	}
+	
+	this.destroy = function(){
+		enemies.splice(enemies.indexOf(this), 1);
+	};
+	
+	this.checkBoundaries = function(){
+	};
+	
+	return this;
 }
+
+function createEverything(type){
+	var pos = [0, 0];
+	pos = randomizeSpawnPosition();
+		
+	if(type == enemyTypes[0]){
+		enemies[enemies.length] = new LineEnemy(pos[0], pos[1]);
+	}
+	else if(type == enemyTypes[1]){
+		enemies[enemies.length] = new FollowEnemy(pos[0], pos[1]);
+	}
+	else{
+		alert("kyop");
+	}
+}
+
+function randomizeSpawnPosition(){
+	var pos = [0, 0];
+	var random = randomize(4); //1,2,3,4
+	if(random == 1){ //Up
+		pos[0] = randomize(canvas.width);
+		pos[1] = 0 - enemyFollowSprite.height;
+	}
+	else if(random == 2){ //Left
+		pos[0] = 0 - enemyFollowSprite.width;
+		pos[1] = randomize(canvas.height);
+	}
+	else if(random == 3){ //Right
+		pos[0] = canvas.width;
+		pos[1] = randomize(canvas.height);
+	}
+	else if(random == 4){ // Down
+		pos[0] = randomize(canvas.width);
+		pos[1] = canvas.height;
+	}
+	else{
+		alert("Error: Enemy -> randomizeSpawnPosition");
+		return null;
+	}
+	
+	return pos;
+}
+
+Enemy.prototype = new Entity();
+
 // Jamming from file: 1.1_FollowEnemy.js
 /* *************************
  * "CLASS": FollowEnemy
  * *************************/
 
 function FollowEnemy(x, y){
-	this.x = x;
-	this.y = y;
+	
+	Enemy.call(this, x, y, 'FOLLOW');
 
 	this.sprite = enemyFollowSprite;
 	this.speed = ENEMY_VELOCITY;
-	
 	this.radius = ENEMY_SPRITE_WIDTH/2;
 	
 	//Destroy
@@ -368,24 +455,29 @@ function FollowEnemy(x, y){
 		followEnemies.splice(followEnemies.indexOf(this), 1);
 	};
 	
-	//Update
-	this.update = function(dt){
+	this.checkBoundaries = function(){
+		if(this.x > canvas.width+50 || this.x < -50 || this.y > canvas.height+50 || this.y < -50){
+			this.destroy();
+		}
+	};
+	
+	this.updateMovement = function(){
 		var xToFollow = player.x - this.x;
 		var yToFollow = player.y - this.y;
-		
 		var hypotenuse = Math.sqrt( (xToFollow*xToFollow)+(yToFollow*yToFollow) );
-		hypotenuse = (hypotenuse==0) ? 1 : hypotenuse;
 		
+		hypotenuse = (hypotenuse==0) ? 1 : hypotenuse;
 		xToFollow /= hypotenuse;
 		yToFollow /= hypotenuse;
 		
 		this.x += xToFollow * this.speed;
 		this.y += yToFollow * this.speed;
-		
-		if(this.x > canvas.width+50 || this.x < -50 || this.y > canvas.height+50 || this.y < -50){
-			this.destroy();
-		}
-		
+	};
+	
+	//Update
+	this.update = function(dt){
+		this.updateMovement();
+		this.checkBoundaries();
 	};
 	
 	//Render
@@ -404,37 +496,7 @@ function FollowEnemy(x, y){
 	return this;
 }
 
-
-var followEnemies = [];
-
-function createFollowEnemy(){
-
-	var xpos = 0;
-	var ypos = 0;
-	
-	var random = randomize(4); //1,2,3,4
-	if(random == 1){ //Up
-		xpos = randomize(canvas.width);
-		ypos = 0 - enemyFollowSprite.height;
-	}
-	else if(random == 2){ //Left
-		xpos = 0 - enemyFollowSprite.width;
-		ypos = randomize(canvas.height);
-	}
-	else if(random == 3){ //Right
-		xpos = canvas.width;
-		ypos = randomize(canvas.height);
-	}
-	else if(random == 4){ // Down
-		xpos = randomize(canvas.width);
-		ypos = canvas.height;
-	}
-	else{
-		alert("Error: FollowEnemy -> createFollowEnemy");
-	}
-	
-	followEnemies[followEnemies.length] = new FollowEnemy(xpos,ypos);
-}
+FollowEnemy.prototype = new Enemy();
 
 // Jamming from file: 1.2_LineEnemy.js
 /* *************************
@@ -442,8 +504,9 @@ function createFollowEnemy(){
  * *************************/
 
 function LineEnemy(x, y){
-	this.x = x;
-	this.y = y;
+	
+		Enemy.call(this, x, y, "LINE");
+	
 	this.sprite = enemyLineSprite;
 	this.speed = ENEMY_VELOCITY * 1.5;
 	this.radius = ENEMY_SPRITE_WIDTH/2;
@@ -485,37 +548,7 @@ function LineEnemy(x, y){
 	return this;
 }
 
-var lineEnemies = [];
-
-function createLineEnemy(){
-
-	var xpos = 0;
-	var ypos = 0;
-	
-	var random = randomize(4); //1,2,3,4
-	if(random == 1){ //Up
-		xpos = randomize(canvas.width);
-		ypos = 0 - enemyLineSprite.height;
-	}
-	else if(random == 2){ //Left
-		xpos = 0 - enemyLineSprite.width;
-		ypos = randomize(canvas.height);
-	}
-	else if(random == 3){ //Right
-		xpos = canvas.width;
-		ypos = randomize(canvas.height);
-	}
-	else if(random == 4){ // Down
-		xpos = randomize(canvas.width);
-		ypos = canvas.height;
-	}
-	else{
-		alert("Error: LineEnemy -> createLineEnemy");
-	}
-	
-	lineEnemies[lineEnemies.length] = new LineEnemy(xpos,ypos);
-}
-
+LineEnemy.prototype = new Enemy();
 
 // Jamming from file: 2.0_Keyboard.js
 /* *************************
@@ -701,26 +734,18 @@ function update(dt){
 	//Spawn new line enemy
 	var lineEnd = window.performance.now();
 	if( (lineEnd - lineStart) > SPAWN_LINE_ENEMY_DELAY){
-		createLineEnemy();
+		//new LineEnemy('LINE');
 		lineStart = lineEnd;
 	}
 	
 	//Spawn new follow enemy
 	var followEnd = window.performance.now();
 	if( (followEnd - followStart) > SPAWN_FOLLOW_ENEMY_DELAY){
-		createFollowEnemy();
+		//new FollowEnemy('FOLLOW');
 		followStart = followEnd;
 	}
 	
-	//Update line enemies
-	for(var i = 0; i<lineEnemies.length; i++){
-		lineEnemies[i].update(dt);
-	}
-	
-	//Update follow enemies
-	for(var i = 0; i<followEnemies.length; i++){
-		followEnemies[i].update(dt);
-	}
+	updateAll(enemies);
  	
 	//Update teleport time
 	var timeTeleportEnd = window.performance.now();
@@ -736,23 +761,12 @@ function render(){
 	
 	mouse.render();
 	renderEntity(player);
-		
-	for(var i = 0; i<lineEnemies.length; i++){
-		lineEnemies[i].render();
-	}
-	for(var i = 0; i<followEnemies.length; i++){
-		followEnemies[i].render();
-	}
+	renderAll(enemies);
 	
 }
 
 function initialize(){
-
-	var e = new Entity(1,1);
-	e.render();
-	var p = new Player(2,2);
-	p.render();
-
+	createEverything('FOLLOW');
 	lastTime = Date.now();
     main();
 }

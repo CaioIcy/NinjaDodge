@@ -3,12 +3,11 @@
  * *************************/
 
 function FollowEnemy(x, y){
-	this.x = x;
-	this.y = y;
+	
+	Enemy.call(this, x, y, 'FOLLOW');
 
 	this.sprite = enemyFollowSprite;
 	this.speed = ENEMY_VELOCITY;
-	
 	this.radius = ENEMY_SPRITE_WIDTH/2;
 	
 	//Destroy
@@ -16,24 +15,29 @@ function FollowEnemy(x, y){
 		followEnemies.splice(followEnemies.indexOf(this), 1);
 	};
 	
-	//Update
-	this.update = function(dt){
+	this.checkBoundaries = function(){
+		if(this.x > canvas.width+50 || this.x < -50 || this.y > canvas.height+50 || this.y < -50){
+			this.destroy();
+		}
+	};
+	
+	this.updateMovement = function(){
 		var xToFollow = player.x - this.x;
 		var yToFollow = player.y - this.y;
-		
 		var hypotenuse = Math.sqrt( (xToFollow*xToFollow)+(yToFollow*yToFollow) );
-		hypotenuse = (hypotenuse==0) ? 1 : hypotenuse;
 		
+		hypotenuse = (hypotenuse==0) ? 1 : hypotenuse;
 		xToFollow /= hypotenuse;
 		yToFollow /= hypotenuse;
 		
 		this.x += xToFollow * this.speed;
 		this.y += yToFollow * this.speed;
-		
-		if(this.x > canvas.width+50 || this.x < -50 || this.y > canvas.height+50 || this.y < -50){
-			this.destroy();
-		}
-		
+	};
+	
+	//Update
+	this.update = function(dt){
+		this.updateMovement();
+		this.checkBoundaries();
 	};
 	
 	//Render
@@ -52,34 +56,4 @@ function FollowEnemy(x, y){
 	return this;
 }
 
-
-var followEnemies = [];
-
-function createFollowEnemy(){
-
-	var xpos = 0;
-	var ypos = 0;
-	
-	var random = randomize(4); //1,2,3,4
-	if(random == 1){ //Up
-		xpos = randomize(canvas.width);
-		ypos = 0 - enemyFollowSprite.height;
-	}
-	else if(random == 2){ //Left
-		xpos = 0 - enemyFollowSprite.width;
-		ypos = randomize(canvas.height);
-	}
-	else if(random == 3){ //Right
-		xpos = canvas.width;
-		ypos = randomize(canvas.height);
-	}
-	else if(random == 4){ // Down
-		xpos = randomize(canvas.width);
-		ypos = canvas.height;
-	}
-	else{
-		alert("Error: FollowEnemy -> createFollowEnemy");
-	}
-	
-	followEnemies[followEnemies.length] = new FollowEnemy(xpos,ypos);
-}
+FollowEnemy.prototype = new Enemy();

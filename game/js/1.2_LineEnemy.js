@@ -43,6 +43,7 @@ function LineEnemy(x, y){
 		d.stroke();
 	};
 	
+	return this;
 }
 
 var lineEnemies = [];

@@ -60,6 +60,12 @@ function render(){
 }
 
 function initialize(){
+
+	var e = new Entity(1,1);
+	e.render();
+	var p = new Player(2,2);
+	p.render();
+
 	lastTime = Date.now();
     main();
 }

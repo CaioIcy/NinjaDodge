@@ -3,14 +3,13 @@
  * *************************/
 
 function Player(x, y){
-	this.x = x;
-	this.y = y;
+
+	/* ###	ATTRIBUTES	### */
+	Entity.call(this, x, y);
+
 	this.vx = 0;
 	this.vy = 0;
-	
 	this.sprite = new Sprite('res/spritesheet.png', [0, 0], [32,32] , 16, [0,1,2,3,4,5,6,7]);
-							//url,                   pos,    size,  speed, frames,           dir, once
-
 	this.speed = STARTING_PLAYER_SPEED;
 	this.isBlocking = false;
 	this.blockRadius = (PLAYER_SPRITE_WIDTH/2) + BLOCK_RADIUS;
@@ -18,8 +17,9 @@ function Player(x, y){
 	this.handle = PLAYER_HANDLE; // the ability to turn better
 	this.teleportRange = 100;
 	
-	//Check Canvas Boundaries
-	this.checkCanvasBoundaries = function(){
+	/*	METHODS	*/
+	
+	this.checkBoundaries = function(){
 		if(this.x + this.sprite.width >= canvas.width){
 			this.x = canvas.width - this.sprite.width;
 			this.vx /= 2;
@@ -38,7 +38,6 @@ function Player(x, y){
 		}
 	}
 	
-	//Update
 	this.update = function(dt){
 		this.sprite.update(dt);
 	
@@ -48,10 +47,9 @@ function Player(x, y){
 		this.x += this.vx;
 		this.y += this.vy;
 		
-		this.checkCanvasBoundaries();
+		this.checkBoundaries();
 	};
 	
-	//Block
 	this.block = function(){
 	
 		this.isBlocking = true;
@@ -71,7 +69,10 @@ function Player(x, y){
 		blockEnable(this);
 	};
 	
+	return this;
 }
+
+Player.prototype = new Entity();
 
 function blockEnable(player){
 		setTimeout(function(){

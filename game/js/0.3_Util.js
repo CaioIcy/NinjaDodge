@@ -41,9 +41,9 @@ function renderEntity(entity) {
     d.restore();
 }
 
-function renderEntities(listOfEntities) {
+function renderAll(listOfEntities) {
     for(i = 0; i< listOfEntities.length; i++){
 		var entity = listOfEntities[i];
-		renderEntity(entity);
+		entity.render();
 	}
 }

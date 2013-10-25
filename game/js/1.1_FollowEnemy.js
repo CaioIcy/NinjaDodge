@@ -48,6 +48,8 @@ function FollowEnemy(x, y){
 		d.stroke();
 	};
 	
+	
+	return this;
 }
 
 

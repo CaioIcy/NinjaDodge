@@ -213,20 +213,40 @@ function renderEntities(listOfEntities) {
 	}
 }
 
-// Jamming from file: 1.0_Player.js
+// Jamming from file: 1.0.0.0_Entity.js
+/* *************************
+ * "CLASS": Entity
+ * *************************/
+
+function Entity(x, y){
+
+	this.x = x;
+	this.y = y;
+	this.sprite;
+	
+	this.update = function(dt){
+	}
+	
+	this.render = function(){
+		alert(this.x);
+	}
+
+	return this;
+}
+ 
+// Jamming from file: 1.0.0_Player.js
 /* *************************
  * "CLASS": Player
  * *************************/
 
 function Player(x, y){
-	this.x = x;
-	this.y = y;
+
+	/* ###	ATTRIBUTES	### */
+	Entity.call(this, x, y);
+
 	this.vx = 0;
 	this.vy = 0;
-	
 	this.sprite = new Sprite('res/spritesheet.png', [0, 0], [32,32] , 16, [0,1,2,3,4,5,6,7]);
-							//url,                   pos,    size,  speed, frames,           dir, once
-
 	this.speed = STARTING_PLAYER_SPEED;
 	this.isBlocking = false;
 	this.blockRadius = (PLAYER_SPRITE_WIDTH/2) + BLOCK_RADIUS;
@@ -234,8 +254,9 @@ function Player(x, y){
 	this.handle = PLAYER_HANDLE; // the ability to turn better
 	this.teleportRange = 100;
 	
-	//Check Canvas Boundaries
-	this.checkCanvasBoundaries = function(){
+	/*	METHODS	*/
+	
+	this.checkBoundaries = function(){
 		if(this.x + this.sprite.width >= canvas.width){
 			this.x = canvas.width - this.sprite.width;
 			this.vx /= 2;
@@ -254,7 +275,6 @@ function Player(x, y){
 		}
 	}
 	
-	//Update
 	this.update = function(dt){
 		this.sprite.update(dt);
 	
@@ -264,10 +284,9 @@ function Player(x, y){
 		this.x += this.vx;
 		this.y += this.vy;
 		
-		this.checkCanvasBoundaries();
+		this.checkBoundaries();
 	};
 	
-	//Block
 	this.block = function(){
 	
 		this.isBlocking = true;
@@ -287,7 +306,10 @@ function Player(x, y){
 		blockEnable(this);
 	};
 	
+	return this;
 }
+
+Player.prototype = new Entity();
 
 function blockEnable(player){
 		setTimeout(function(){
@@ -316,6 +338,17 @@ var PLAYER_START_X = (canvas.width/2) - 32/2;
 var PLAYER_START_Y = (canvas.height/2) - 32/2;
 var player = new Player(PLAYER_START_X, PLAYER_START_Y);
 
+// Jamming from file: 1.0.1_Enemy.js
+/* *************************
+ * "CLASS": Enemy
+ * *************************/
+
+function Enemy(x,y){
+
+	Entity.call(this, x, y);
+	
+
+}
 // Jamming from file: 1.1_FollowEnemy.js
 /* *************************
  * "CLASS": FollowEnemy
@@ -367,6 +400,8 @@ function FollowEnemy(x, y){
 		d.stroke();
 	};
 	
+	
+	return this;
 }
 
 
@@ -447,6 +482,7 @@ function LineEnemy(x, y){
 		d.stroke();
 	};
 	
+	return this;
 }
 
 var lineEnemies = [];
@@ -616,8 +652,7 @@ function mouseXY(e) {
 		var mouseX = e.clientX - canvas.offsetLeft;
 		var mouseY = e.clientY - canvas.offsetTop;
 		
-		//mouseX = (mouseX<=0) ? 0 : mouseX;
-		//mouseX = (mouseX>=canvas.width) ? canvas.width : mouseX;
+		//Check mouseX boundaries
 		if(mouseX <= 0){
 			mouseX = 0;
 		}
@@ -628,8 +663,7 @@ function mouseXY(e) {
 			//maintain current mouseX
 		}
 		
-		//mouseY = (mouseY<=0) ? 0 : mouseY;
-		//mouseY = (mouseY>=canvas.height) ? canvas.height : mouseY;
+		//Check mouseY boundaries
 		if(mouseY <= 0){
 			mouseY = 0;
 		}
@@ -713,6 +747,12 @@ function render(){
 }
 
 function initialize(){
+
+	var e = new Entity(1,1);
+	e.render();
+	var p = new Player(2,2);
+	p.render();
+
 	lastTime = Date.now();
     main();
 }

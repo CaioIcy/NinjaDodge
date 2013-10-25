@@ -58,7 +58,6 @@ function Player(x, y){
 				
 		var blockX = this.x + (this.sprite.width/2);
 		var blockY = this.y + (this.sprite.height/2);
-	
 		daux.beginPath();
 		daux.arc(blockX, blockY, this.blockRadius, 0, Math.PI*2, true); 
 		daux.stroke();
@@ -72,8 +71,6 @@ function Player(x, y){
 	return this;
 }
 
-Player.prototype = new Entity();
-
 function blockEnable(player){
 		setTimeout(function(){
 			player.isBlocking = false;
@@ -81,20 +78,13 @@ function blockEnable(player){
 }
 
 function checkEnemiesCollision(player){
-	for(var i = 0; i<lineEnemies.length; i++){
-		if( circleCollision(player, lineEnemies[i]) ){
-			lineEnemies[i].destroy();
-			//alert("collided line: " + i);
+	for(var i = 0; i<enemies.length; i++){
+		var enemy = enemies[i];
+		if( circleCollision(player, enemy) ){
+			enemy.destroy();
+			createExplosion(enemy.x, enemy.y);
 		}
 	}
-		
-		
-	for(var i = 0; i<followEnemies.length; i++){
-		if( circleCollision(player, followEnemies[i]) ){
-			followEnemies[i].destroy();
-			//alert("collided follow: " + i);
-		}
-	}	
 }
 
 var PLAYER_START_X = (canvas.width/2) - 32/2;

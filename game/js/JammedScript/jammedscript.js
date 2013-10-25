@@ -47,11 +47,7 @@ resources.load([
 ]);
 resources.onReady(initialize);
 
-var enemyFollowSprite = new Image();
-enemyFollowSprite.src = "res/FollowEnemy.png";
-
-var enemyLineSprite = new Image();
-enemyLineSprite.src = "res/LineEnemy.png";
+var SPRITE_ENEMY_SIZE = [32,32];
 
 // Jamming from file: 0.2_VkValues.js
 /* *************************
@@ -173,6 +169,23 @@ function randomize(limit){
 
 function circleCollision(circle1, circle2){
 
+	this.seeCircles = function(yes){
+		if(yes){
+			var xx = circle1.x + (circle1.sprite.width/2);
+			var yy = circle1.y + (circle1.sprite.height/2);
+			var xxx = circle2.x + (circle2.sprite.width/2);
+			var yyy = circle2.y + (circle2.sprite.height/2);
+			daux.beginPath();
+			daux.arc(xx, yy, 5+(circle1.sprite.width/2), 0, Math.PI*2, true); 
+			daux.stroke();
+			daux.beginPath();
+			daux.arc(xxx, yyy, 5+(circle2.sprite.width/2), 0, Math.PI*2, true); 
+			daux.stroke();
+		}
+	};
+
+	seeCircles(false);
+
 	var collided = false;
 	
 	var dx = (circle2.x + circle2.radius) - (circle1.x + circle1.radius);
@@ -199,13 +212,6 @@ var requestAnimFrame = (function(){
         };
 })();
 
-function renderEntity(entity) {
-    d.save();
-    d.translate(entity.x, entity.y);
-    entity.sprite.render(d);
-    d.restore();
-}
-
 function renderAll(listOfEntities) {
     for(i = 0; i< listOfEntities.length; i++){
 		var entity = listOfEntities[i];
@@ -213,11 +219,42 @@ function renderAll(listOfEntities) {
 	}
 }
 
-function updateAll(listOfEntities) {
+function updateAll(listOfEntities, dt) {
     for(i = 0; i< listOfEntities.length; i++){
 		var entity = listOfEntities[i];
-		entity.update();
+		if(dt==null || dt == undefined){
+			entity.update();
+		}
+		else{
+			entity.update(dt);
+		}
 	}
+}
+
+function renderHUD(){
+	//Try one clearRect only here
+	mouse.render();
+	renderNumberOfEnemiesOnScreen();
+}
+
+function renderNumberOfEnemiesOnScreen(){
+	var nl = 0;
+	var nf = 0;
+	for(i=0; i<enemies.length; i++){
+		var enemy = enemies[i];
+		if(enemy.type == 'LINE'){
+			nl++;
+		}
+		else if(enemy.type == 'FOLLOW'){
+			nf++;
+		}
+		else{
+			alert("Error: on renderNumberOfEnemiesOnScreen");
+		}
+	}
+	daux.clearRect(4,555,30,25);
+	daux.fillText("L: " + nl, 5, 565);
+	daux.fillText("F: " + nf, 5, 580);
 }
 
 // Jamming from file: 1.0.0.0_Entity.js
@@ -238,7 +275,10 @@ function Entity(x, y){
 	}
 	
 	this.render = function(){
-		renderEntity(this);
+		d.save();
+		d.translate(this.x, this.y);
+		this.sprite.render(d);
+		d.restore();
 	}
 
 	return this;
@@ -305,7 +345,6 @@ function Player(x, y){
 				
 		var blockX = this.x + (this.sprite.width/2);
 		var blockY = this.y + (this.sprite.height/2);
-	
 		daux.beginPath();
 		daux.arc(blockX, blockY, this.blockRadius, 0, Math.PI*2, true); 
 		daux.stroke();
@@ -319,8 +358,6 @@ function Player(x, y){
 	return this;
 }
 
-Player.prototype = new Entity();
-
 function blockEnable(player){
 		setTimeout(function(){
 			player.isBlocking = false;
@@ -328,20 +365,13 @@ function blockEnable(player){
 }
 
 function checkEnemiesCollision(player){
-	for(var i = 0; i<lineEnemies.length; i++){
-		if( circleCollision(player, lineEnemies[i]) ){
-			lineEnemies[i].destroy();
-			//alert("collided line: " + i);
+	for(var i = 0; i<enemies.length; i++){
+		var enemy = enemies[i];
+		if( circleCollision(player, enemy) ){
+			enemy.destroy();
+			createExplosion(enemy.x, enemy.y);
 		}
 	}
-		
-		
-	for(var i = 0; i<followEnemies.length; i++){
-		if( circleCollision(player, followEnemies[i]) ){
-			followEnemies[i].destroy();
-			//alert("collided follow: " + i);
-		}
-	}	
 }
 
 var PLAYER_START_X = (canvas.width/2) - 32/2;
@@ -388,12 +418,15 @@ function Enemy(x, y, type){
 	};
 	
 	this.checkBoundaries = function(){
+		if(this.x > canvas.width+50 || this.x < -50 || this.y > canvas.height+50 || this.y < -50){
+			this.destroy();
+		}
 	};
 	
 	return this;
 }
 
-function createEverything(type){
+function spawnEnemy(type){
 	var pos = [0, 0];
 	pos = randomizeSpawnPosition();
 		
@@ -404,38 +437,43 @@ function createEverything(type){
 		enemies[enemies.length] = new FollowEnemy(pos[0], pos[1]);
 	}
 	else{
-		alert("kyop");
+		alert("TYPE UNDEFINED (spawnEnemy)");
 	}
 }
 
+// So far only works for the same enemy size (SPRITE_ENEMY_SIZE)
 function randomizeSpawnPosition(){
 	var pos = [0, 0];
-	var random = randomize(4); //1,2,3,4
-	if(random == 1){ //Up
-		pos[0] = randomize(canvas.width);
-		pos[1] = 0 - enemyFollowSprite.height;
-	}
-	else if(random == 2){ //Left
-		pos[0] = 0 - enemyFollowSprite.width;
-		pos[1] = randomize(canvas.height);
-	}
-	else if(random == 3){ //Right
-		pos[0] = canvas.width;
-		pos[1] = randomize(canvas.height);
-	}
-	else if(random == 4){ // Down
-		pos[0] = randomize(canvas.width);
-		pos[1] = canvas.height;
-	}
-	else{
-		alert("Error: Enemy -> randomizeSpawnPosition");
+	
+	try{
+		var random = randomize(4); //1,2,3,4
+		if(random == 1){ //Up
+			pos[0] = randomize(canvas.width);
+			pos[1] = 0 - SPRITE_ENEMY_SIZE[1];
+		}
+		else if(random == 2){ //Left
+			pos[0] = 0 - SPRITE_ENEMY_SIZE[0];
+			pos[1] = randomize(canvas.height);
+		}
+		else if(random == 3){ //Right
+			pos[0] = canvas.width;
+			pos[1] = randomize(canvas.height);
+		}
+		else if(random == 4){ // Down
+			pos[0] = randomize(canvas.width);
+			pos[1] = canvas.height;
+		}
+		else{
+			throw "random value ["+ random +"] not equal to established limit";
+			return null;
+		}
+	} catch(e){
+		alert("Error: " + e);
 		return null;
 	}
 	
 	return pos;
 }
-
-Enemy.prototype = new Entity();
 
 // Jamming from file: 1.1_FollowEnemy.js
 /* *************************
@@ -446,20 +484,9 @@ function FollowEnemy(x, y){
 	
 	Enemy.call(this, x, y, 'FOLLOW');
 
-	this.sprite = enemyFollowSprite;
+	this.sprite = new Sprite('res/spritesheet.png', [0, 64], SPRITE_ENEMY_SIZE, 4, [0,1]);
 	this.speed = ENEMY_VELOCITY;
 	this.radius = ENEMY_SPRITE_WIDTH/2;
-	
-	//Destroy
-	this.destroy = function(){
-		followEnemies.splice(followEnemies.indexOf(this), 1);
-	};
-	
-	this.checkBoundaries = function(){
-		if(this.x > canvas.width+50 || this.x < -50 || this.y > canvas.height+50 || this.y < -50){
-			this.destroy();
-		}
-	};
 	
 	this.updateMovement = function(){
 		var xToFollow = player.x - this.x;
@@ -476,27 +503,13 @@ function FollowEnemy(x, y){
 	
 	//Update
 	this.update = function(dt){
+		this.sprite.update(dt);
 		this.updateMovement();
 		this.checkBoundaries();
 	};
 	
-	//Render
-	this.render = function(){
-		d.drawImage(this.sprite, this.x, this.y, this.sprite.width, this.sprite.height);
-		
-		var blockX = this.x + (this.sprite.width/2);
-		var blockY = this.y + (this.sprite.height/2);
-	
-		d.beginPath();
-		d.arc(blockX, blockY, 5+(ENEMY_SPRITE_WIDTH/2), 0, Math.PI*2, true); 
-		d.stroke();
-	};
-	
-	
 	return this;
 }
-
-FollowEnemy.prototype = new Enemy();
 
 // Jamming from file: 1.2_LineEnemy.js
 /* *************************
@@ -505,10 +518,10 @@ FollowEnemy.prototype = new Enemy();
 
 function LineEnemy(x, y){
 	
-		Enemy.call(this, x, y, "LINE");
+	Enemy.call(this, x, y, "LINE");
 	
-	this.sprite = enemyLineSprite;
-	this.speed = ENEMY_VELOCITY * 1.5;
+	this.sprite = new Sprite('res/spritesheet.png', [0, 32], SPRITE_ENEMY_SIZE, 4, [0,1]);
+	this.speed = ENEMY_VELOCITY * 1.8;
 	this.radius = ENEMY_SPRITE_WIDTH/2;
 	
 	this.xToFollow = player.x - this.x;
@@ -518,37 +531,45 @@ function LineEnemy(x, y){
 	this.xToFollow /= this.hypotenuse;
 	this.yToFollow /= this.hypotenuse;
 	
-	//Destroy
-	this.destroy = function(){
-		lineEnemies.splice(lineEnemies.indexOf(this), 1);
-	};
-	
 	//Update
-	this.update = function(){
+	this.update = function(dt){
+		this.sprite.update(dt);
+	
 		this.x += this.xToFollow*this.speed;
 		this.y += this.yToFollow*this.speed;
 		
-		if(this.x > canvas.width+50 || this.x < -50 || this.y > canvas.height+50 || this.y < -50){
-			this.destroy();
-		}
-	};
-	
-	//Render
-	this.render = function(){
-		d.drawImage(this.sprite, this.x, this.y, this.sprite.width, this.sprite.height);
-	
-		var blockX = this.x + (this.sprite.width/2);
-		var blockY = this.y + (this.sprite.height/2);
-	
-		d.beginPath();
-		d.arc(blockX, blockY, 5+(ENEMY_SPRITE_WIDTH/2), 0, Math.PI*2, true); 
-		d.stroke();
+		this.checkBoundaries();
 	};
 	
 	return this;
 }
 
-LineEnemy.prototype = new Enemy();
+// Jamming from file: 1.3_Explosions.js
+/* *************************
+ * "CLASS": Explosion
+ * *************************/
+var explosions = [];
+function Explosion(x, y){
+	Entity.call(this, x, y);
+	this.sprite = new Sprite('res/spritesheet.png', [0, 96], [32,32] , 16, [0,1,2,3,4], 'horizontal', true);
+	
+	this.update = function(dt){
+		this.sprite.update(dt);
+		if(this.sprite.done){
+			this.destroy();
+		}
+	};
+	
+	this.destroy = function(){
+		explosions.splice(explosions.indexOf(this), 1);
+	};
+	
+	return this;
+}
+
+function createExplosion(x,y){
+	explosions[explosions.length] = new Explosion(x,y);
+}
 
 // Jamming from file: 2.0_Keyboard.js
 /* *************************
@@ -730,23 +751,25 @@ function update(dt){
 	keyboard.updateKeyInput(dt);
 	player.update(dt);
 	mouse.update();
+	updateAll(enemies, dt);
+	updateAll(explosions, dt);
+	
+	checkEnemiesCollision(player);
 	
 	//Spawn new line enemy
 	var lineEnd = window.performance.now();
 	if( (lineEnd - lineStart) > SPAWN_LINE_ENEMY_DELAY){
-		//new LineEnemy('LINE');
+		spawnEnemy('LINE');
 		lineStart = lineEnd;
 	}
 	
 	//Spawn new follow enemy
 	var followEnd = window.performance.now();
 	if( (followEnd - followStart) > SPAWN_FOLLOW_ENEMY_DELAY){
-		//new FollowEnemy('FOLLOW');
+		spawnEnemy('FOLLOW');
 		followStart = followEnd;
 	}
 	
-	updateAll(enemies);
- 	
 	//Update teleport time
 	var timeTeleportEnd = window.performance.now();
 	if(( timeTeleportEnd - timeTeleportStart ) > TELEPORT){
@@ -759,14 +782,14 @@ function update(dt){
 function render(){
 	d.clearRect(0, 0, canvas.width, canvas.height);
 	
-	mouse.render();
-	renderEntity(player);
-	renderAll(enemies);
+	renderHUD();
 	
+	player.render();
+	renderAll(enemies);
+	renderAll(explosions);
 }
 
 function initialize(){
-	createEverything('FOLLOW');
 	lastTime = Date.now();
     main();
 }

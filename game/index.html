@@ -13,10 +13,64 @@
 	<script type="text/javascript" src="js/JammedScript/jammedscript.js" defer></script>
 	<!--------------------------------------------->
 	
-	<body>
+	<script>
 
+	function aumenta(signal, camp){
+	
+	var te = document.getElementById("teleport");
+	var sp = document.getElementById("speed");
+	var st = document.getElementById("strongness");
+	
+		if(signal == "-"){
+			if(camp == "te"){
+				te.value--;
+			}
+			else if(camp == "sp"){
+				sp.value--;
+			}
+			else if(camp == "st"){
+				st.value--;
+			}
+		}
+		else if(signal == "+"){
+			if(camp == "te"){
+				te.value++;
+			}
+			else if(camp == "sp"){
+				sp.value++;
+			}
+			else if(camp == "st"){
+				st.value++;
+			}
+		}
+	}
+
+	</script>
+	
+	<div id = "values">
+	
+	<h1>Values</h1>
+		<h3>Speed</h3>
+		<button onclick="aumenta('-','sp')">dw</button>
+		<input id="speed" name="speed" type="text" value="1" maxlength="2" size = "2" readonly></input>
+		<button onclick="aumenta('+','sp')">up</button>
+		
+		<h3>Teleport distance</h3>
+		<button onclick="aumenta('-','te')">dw</button>
+		<input id="teleport" name="teleport" type="text" value="1" maxlength="2" size = "2" readonly></input>
+		<button onclick="aumenta('+','te')">up</button>
+		
+		<h3>Strongness</h3>
+		<button onclick="aumenta('-','st')">dw</button>
+		<input id="strongness" name="strongness" type="text" value="1" maxlength="2" size = "2" readonly></input>
+		<button onclick="aumenta('+','st')">up</button>
+
+	</div>
+	
+	<body>
+	<div id="game">
 		<center>
-			<canvas id="canvas" width="800" height="600" style = "border: 1px solid #d3d3d3;z-index: 1; position: absolute;">
+			<canvas id="canvas" width="800" height="600" style = "border: 1px solid #d3d3d3;z-index: 1; position: absolute; top:30px;">
 				This text is displayed if your browser does not support HTML5 Canvas.
 			</canvas>
 			
@@ -24,6 +78,9 @@
 				This text is displayed if your browser does not support HTML5 Canvas.
 			</canvas>
 		</center>
+	</div>
+	
+	
 
 	</body>
 	

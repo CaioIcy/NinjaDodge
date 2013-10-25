@@ -10,23 +10,25 @@ function update(dt){
 	keyboard.updateKeyInput(dt);
 	player.update(dt);
 	mouse.update();
+	updateAll(enemies, dt);
+	updateAll(explosions, dt);
+	
+	checkEnemiesCollision(player);
 	
 	//Spawn new line enemy
 	var lineEnd = window.performance.now();
 	if( (lineEnd - lineStart) > SPAWN_LINE_ENEMY_DELAY){
-		//new LineEnemy('LINE');
+		spawnEnemy('LINE');
 		lineStart = lineEnd;
 	}
 	
 	//Spawn new follow enemy
 	var followEnd = window.performance.now();
 	if( (followEnd - followStart) > SPAWN_FOLLOW_ENEMY_DELAY){
-		//new FollowEnemy('FOLLOW');
+		spawnEnemy('FOLLOW');
 		followStart = followEnd;
 	}
 	
-	updateAll(enemies);
- 	
 	//Update teleport time
 	var timeTeleportEnd = window.performance.now();
 	if(( timeTeleportEnd - timeTeleportStart ) > TELEPORT){
@@ -39,14 +41,14 @@ function update(dt){
 function render(){
 	d.clearRect(0, 0, canvas.width, canvas.height);
 	
-	mouse.render();
-	renderEntity(player);
-	renderAll(enemies);
+	renderHUD();
 	
+	player.render();
+	renderAll(enemies);
+	renderAll(explosions);
 }
 
 function initialize(){
-	createEverything('FOLLOW');
 	lastTime = Date.now();
     main();
 }

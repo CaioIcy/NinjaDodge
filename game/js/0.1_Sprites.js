@@ -10,8 +10,4 @@ resources.load([
 ]);
 resources.onReady(initialize);
 
-var enemyFollowSprite = new Image();
-enemyFollowSprite.src = "res/FollowEnemy.png";
-
-var enemyLineSprite = new Image();
-enemyLineSprite.src = "res/LineEnemy.png";
+var SPRITE_ENEMY_SIZE = [32,32];

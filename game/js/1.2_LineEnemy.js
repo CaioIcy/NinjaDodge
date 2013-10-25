@@ -4,10 +4,10 @@
 
 function LineEnemy(x, y){
 	
-		Enemy.call(this, x, y, "LINE");
+	Enemy.call(this, x, y, "LINE");
 	
-	this.sprite = enemyLineSprite;
-	this.speed = ENEMY_VELOCITY * 1.5;
+	this.sprite = new Sprite('res/spritesheet.png', [0, 32], SPRITE_ENEMY_SIZE, 4, [0,1]);
+	this.speed = ENEMY_VELOCITY * 1.8;
 	this.radius = ENEMY_SPRITE_WIDTH/2;
 	
 	this.xToFollow = player.x - this.x;
@@ -17,34 +17,15 @@ function LineEnemy(x, y){
 	this.xToFollow /= this.hypotenuse;
 	this.yToFollow /= this.hypotenuse;
 	
-	//Destroy
-	this.destroy = function(){
-		lineEnemies.splice(lineEnemies.indexOf(this), 1);
-	};
-	
 	//Update
-	this.update = function(){
+	this.update = function(dt){
+		this.sprite.update(dt);
+	
 		this.x += this.xToFollow*this.speed;
 		this.y += this.yToFollow*this.speed;
 		
-		if(this.x > canvas.width+50 || this.x < -50 || this.y > canvas.height+50 || this.y < -50){
-			this.destroy();
-		}
-	};
-	
-	//Render
-	this.render = function(){
-		d.drawImage(this.sprite, this.x, this.y, this.sprite.width, this.sprite.height);
-	
-		var blockX = this.x + (this.sprite.width/2);
-		var blockY = this.y + (this.sprite.height/2);
-	
-		d.beginPath();
-		d.arc(blockX, blockY, 5+(ENEMY_SPRITE_WIDTH/2), 0, Math.PI*2, true); 
-		d.stroke();
+		this.checkBoundaries();
 	};
 	
 	return this;
 }
-
-LineEnemy.prototype = new Enemy();

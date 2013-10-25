@@ -8,6 +8,23 @@ function randomize(limit){
 
 function circleCollision(circle1, circle2){
 
+	this.seeCircles = function(yes){
+		if(yes){
+			var xx = circle1.x + (circle1.sprite.width/2);
+			var yy = circle1.y + (circle1.sprite.height/2);
+			var xxx = circle2.x + (circle2.sprite.width/2);
+			var yyy = circle2.y + (circle2.sprite.height/2);
+			daux.beginPath();
+			daux.arc(xx, yy, 5+(circle1.sprite.width/2), 0, Math.PI*2, true); 
+			daux.stroke();
+			daux.beginPath();
+			daux.arc(xxx, yyy, 5+(circle2.sprite.width/2), 0, Math.PI*2, true); 
+			daux.stroke();
+		}
+	};
+
+	seeCircles(false);
+
 	var collided = false;
 	
 	var dx = (circle2.x + circle2.radius) - (circle1.x + circle1.radius);
@@ -34,13 +51,6 @@ var requestAnimFrame = (function(){
         };
 })();
 
-function renderEntity(entity) {
-    d.save();
-    d.translate(entity.x, entity.y);
-    entity.sprite.render(d);
-    d.restore();
-}
-
 function renderAll(listOfEntities) {
     for(i = 0; i< listOfEntities.length; i++){
 		var entity = listOfEntities[i];
@@ -48,9 +58,40 @@ function renderAll(listOfEntities) {
 	}
 }
 
-function updateAll(listOfEntities) {
+function updateAll(listOfEntities, dt) {
     for(i = 0; i< listOfEntities.length; i++){
 		var entity = listOfEntities[i];
-		entity.update();
+		if(dt==null || dt == undefined){
+			entity.update();
+		}
+		else{
+			entity.update(dt);
+		}
 	}
+}
+
+function renderHUD(){
+	//Try one clearRect only here
+	mouse.render();
+	renderNumberOfEnemiesOnScreen();
+}
+
+function renderNumberOfEnemiesOnScreen(){
+	var nl = 0;
+	var nf = 0;
+	for(i=0; i<enemies.length; i++){
+		var enemy = enemies[i];
+		if(enemy.type == 'LINE'){
+			nl++;
+		}
+		else if(enemy.type == 'FOLLOW'){
+			nf++;
+		}
+		else{
+			alert("Error: on renderNumberOfEnemiesOnScreen");
+		}
+	}
+	daux.clearRect(4,555,30,25);
+	daux.fillText("L: " + nl, 5, 565);
+	daux.fillText("F: " + nf, 5, 580);
 }

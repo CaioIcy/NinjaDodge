@@ -15,7 +15,10 @@ function Entity(x, y){
 	}
 	
 	this.render = function(){
-		renderEntity(this);
+		d.save();
+		d.translate(this.x, this.y);
+		this.sprite.render(d);
+		d.restore();
 	}
 
 	return this;

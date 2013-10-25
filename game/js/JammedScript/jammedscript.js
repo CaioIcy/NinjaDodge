@@ -791,6 +791,8 @@ window.addEventListener('mousemove', mouseXY, false);
 var lineStart = window.performance.now();
 var followStart = window.performance.now();
 var timeTeleportStart = window.performance.now();
+var passedSeconds = 0;
+var secondsStart = window.performance.now();
 
 function update(dt){
 	keyboard.updateKeyInput(dt);
@@ -798,6 +800,13 @@ function update(dt){
 	mouse.update();
 	updateAll(enemies, dt);
 	updateAll(explosions, dt);
+	
+	var secondsEnd = window.performance.now();
+
+	passedSeconds += secondsEnd - secondsStart;	
+	secondsStart = secondsEnd;
+	daux.clearRect(198,255,150,30);
+	daux.fillText((passedSeconds/1000).toFixed(2), 200, 265);
 	
 	checkEnemiesCollision(player);
 	
@@ -844,7 +853,6 @@ var lastTime;
 function main() {
     var now = Date.now();
     var dt = (now - lastTime) / 1000.0;
-
     update(dt);
     render();
 

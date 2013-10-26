@@ -74,6 +74,10 @@ function renderHUD(){
 	//Try one clearRect only here
 	mouse.render();
 	renderNumberOfEnemiesOnScreen();
+	
+	//Game Time
+	daux.clearRect(4,auxcanvas.height-30, 40,15);
+	daux.fillText(gameTime.toFixed(2), 5, auxcanvas.height-15);
 }
 
 function renderNumberOfEnemiesOnScreen(){
@@ -109,19 +113,25 @@ function aumenta(signal, camp){
 	
 	var te = document.getElementById("teleport");
 	var sp = document.getElementById("speed");
-	var st = document.getElementById("strongness");
+	var st = document.getElementById("strength");
 	
 		if(signal == "-"){
 			if(camp == "te"){
-				te.value--;
-				player.teleportRange-=10;
+				if(te.value > 0){
+					te.value--;
+					player.teleportRange-=10;
+				}
 			}
 			else if(camp == "sp"){
-				sp.value--;
+				if(sp.value > 0){
+					sp.value--;
+				}
 				//to implement
 			}
 			else if(camp == "st"){
-				st.value--;
+				if(st.value > 0){
+					st.value--;
+				}
 				//to implement
 			}
 		}
@@ -139,4 +149,8 @@ function aumenta(signal, camp){
 				//to implement
 			}
 		}
+}
+
+function refreshPage(){
+	location.reload(true);
 }

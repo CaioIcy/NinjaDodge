@@ -7,44 +7,48 @@
 		Ninja Dodge
 	</title>
 	
+	<link rel="stylesheet" href="css/NinjaDodge.css">
+	
 	<!--------------------------------------------->
 	<script type="text/javascript" src="lib/resources.js"></script>
 	<script type="text/javascript" src="lib/sprite.js"></script>
 	<script type="text/javascript" src="js/JammedScript/jammedscript.js" defer></script>
 	<!--------------------------------------------->
 	
-	<div id = "values">
-	
-	<h1>Values</h1>
-		<h3>Speed</h3>
-		<button onclick="aumenta('-','sp')">dw</button>
-		<input id="speed" name="speed" type="text" value="1" maxlength="2" size = "2" readonly></input>
-		<button onclick="aumenta('+','sp')">up</button>
-		
-		<h3>Teleport distance</h3>
-		<button onclick="aumenta('-','te')">dw</button>
-		<input id="teleport" name="teleport" type="text" value="1" maxlength="2" size = "2" readonly></input>
-		<button onclick="aumenta('+','te')">up</button>
-		
-		<h3>Strongness</h3>
-		<button onclick="aumenta('-','st')">dw</button>
-		<input id="strongness" name="strongness" type="text" value="1" maxlength="2" size = "2" readonly></input>
-		<button onclick="aumenta('+','st')">up</button>
-
-	</div>
-	
-	<body oncontextmenu="return false">
-	<div id="game">
-		<center>
-			<canvas id="canvas" width="800" height="600" style = "border: 1px solid #d3d3d3;z-index: 1; position: absolute; top:30px;">
+	<div class="wrapper">
+			<canvas id="canvas" width="800" height="600" style = "border: 1px solid #d3d3d3">
 				This text is displayed if your browser does not support HTML5 Canvas.
 			</canvas>
 			
-			<canvas id="auxcanvas" width="800" height="600" style = "z-index: 2; position: relative; top:30px;">
+			<canvas id="auxcanvas" width="800" height="600" style = "border: 1px solid #d3d3d3">
 				This text is displayed if your browser does not support HTML5 Canvas.
 			</canvas>
-		</center>
 	</div>
+	
+	<div class ="container">
+		<h1>Values</h1>
+			<h3>Speed</h3>
+			<button onclick="aumenta('-','sp')">dw</button>
+			<input id="speed" name="speed" type="text" value="1" maxlength="2" size = "2" readonly></input>
+			<button onclick="aumenta('+','sp')">up</button>
+				
+			<h3>Teleport distance</h3>
+			<button onclick="aumenta('-','te')">dw</button>
+			<input id="teleport" name="teleport" type="text" value="1" maxlength="2" size = "2" readonly></input>
+			<button onclick="aumenta('+','te')">up</button>
+				
+			<h3>Strength</h3>
+			<button onclick="aumenta('-','st')">dw</button>
+			<input id="strength" name="strength" type="text" value="1" maxlength="2" size = "2" readonly></input>
+			<button onclick="aumenta('+','st')">up</button>
+			
+			<h3>Refresh</h3>
+			<button onclick="refreshPage()">refresh</button>
+			
+			<br> <h7> h toggles HUD (on/off)</h7>
+	</div>
+	
+	
 	
 	
 

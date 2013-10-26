@@ -29,9 +29,9 @@ function Mouse() {
 	};
 	
 	this.render = function(){
-		daux.clearRect(canvas.width-60, 10, 40, 40);
-		daux.fillText("mX: " + this.mx, canvas.width-60, 20);
-		daux.fillText("mY: " + this.my, canvas.width-60, 40);
+		daux.clearRect(auxcanvas.width-60, 10, 40, 40);
+		daux.fillText("mX: " + this.mx, auxcanvas.width-60, 20);
+		daux.fillText("mY: " + this.my, auxcanvas.width-60, 40);
 	};
 	
 	this.update = function(){

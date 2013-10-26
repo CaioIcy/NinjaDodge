@@ -1,6 +1,23 @@
-/*
- * Ninja Dodge style
- */
+/* ***********************
+ * Ninja Dodge stylesheet
+ * ***********************/
 
+.wrapper {
+    position: relative;
+	top:5px;
+	left:200px;
+    width: 800px;
+    height: 600px;
+}
 
- 
+.wrapper canvas {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+}
+
+.container {
+	position: absolute;
+	top:0px;
+	left:5px;
+}

@@ -34,6 +34,10 @@ var SPAWN_FOLLOW_ENEMY_DELAY = 1500.0; //in microseconds
 var seconds = 0;
 var allowTeleport = true;
 
+var gameTime = 0;
+
+var showHUD = false;
+
 // Jamming from file: 0.1_Sprites.js
 /* *************************
  * Game Images
@@ -235,6 +239,10 @@ function renderHUD(){
 	//Try one clearRect only here
 	mouse.render();
 	renderNumberOfEnemiesOnScreen();
+	
+	//Game Time
+	daux.clearRect(4,auxcanvas.height-30, 40,15);
+	daux.fillText(gameTime.toFixed(2), 5, auxcanvas.height-15);
 }
 
 function renderNumberOfEnemiesOnScreen(){
@@ -270,19 +278,25 @@ function aumenta(signal, camp){
 	
 	var te = document.getElementById("teleport");
 	var sp = document.getElementById("speed");
-	var st = document.getElementById("strongness");
+	var st = document.getElementById("strength");
 	
 		if(signal == "-"){
 			if(camp == "te"){
-				te.value--;
-				player.teleportRange-=10;
+				if(te.value > 0){
+					te.value--;
+					player.teleportRange-=10;
+				}
 			}
 			else if(camp == "sp"){
-				sp.value--;
+				if(sp.value > 0){
+					sp.value--;
+				}
 				//to implement
 			}
 			else if(camp == "st"){
-				st.value--;
+				if(st.value > 0){
+					st.value--;
+				}
 				//to implement
 			}
 		}
@@ -300,6 +314,10 @@ function aumenta(signal, camp){
 				//to implement
 			}
 		}
+}
+
+function refreshPage(){
+	location.reload(true);
 }
 
 // Jamming from file: 1.0.0.0_Entity.js
@@ -341,7 +359,7 @@ function Player(x, y){
 
 	this.vx = 0;
 	this.vy = 0;
-	this.sprite = new Sprite('res/spritesheet.png', [0, 0], [32,32] , 16, [0,1,2,3,4,5,6,7]);
+	this.sprite = new Sprite('res/spritesheet.png', [0, 0], [32,32] , 12, [0,1,2,3,4,5,6,7]);
 	this.speed = STARTING_PLAYER_SPEED;
 	this.isBlocking = false;
 	this.blockRadius = (PLAYER_SPRITE_WIDTH/2) + BLOCK_RADIUS;
@@ -596,7 +614,7 @@ function LineEnemy(x, y){
 var explosions = [];
 function Explosion(x, y){
 	Entity.call(this, x, y);
-	this.sprite = new Sprite('res/spritesheet.png', [0, 96], [32,32] , 16, [0,1,2,3,4], 'horizontal', true);
+	this.sprite = new Sprite('res/spritesheet.png', [0,128], [32,32] , 12, [0,1,2,3,4,5], 'horizontal', true);
 	
 	this.update = function(dt){
 		this.sprite.update(dt);
@@ -624,6 +642,7 @@ function createExplosion(x,y){
 function Keyboard(){
 
 	this.spacebarPressed = false;
+	this.H_pressed = false;
 
 	this.updateKeyInput = function(dt){
 	
@@ -678,7 +697,16 @@ function Keyboard(){
 			this.spacebarPressed = false;
 		}
 		
-
+		//Toggle HUD (on/off)
+		if(pressedKeys[VK_H] && !this.H_pressed){
+			this.H_pressed = true;
+			if(!showHUD) showHUD = true;
+			else showHUD = false;
+		}
+		else if(!pressedKeys[VK_H]){
+			this.H_pressed = false;
+			daux.clearRect(0,0,auxcanvas.width,auxcanvas.width);
+		}
 		
 	};
 	
@@ -730,9 +758,9 @@ function Mouse() {
 	};
 	
 	this.render = function(){
-		daux.clearRect(canvas.width-60, 10, 40, 40);
-		daux.fillText("mX: " + this.mx, canvas.width-60, 20);
-		daux.fillText("mY: " + this.my, canvas.width-60, 40);
+		daux.clearRect(auxcanvas.width-60, 10, 40, 40);
+		daux.fillText("mX: " + this.mx, auxcanvas.width-60, 20);
+		daux.fillText("mY: " + this.my, auxcanvas.width-60, 40);
 	};
 	
 	this.update = function(){
@@ -791,8 +819,7 @@ window.addEventListener('mousemove', mouseXY, false);
 var lineStart = window.performance.now();
 var followStart = window.performance.now();
 var timeTeleportStart = window.performance.now();
-var passedSeconds = 0;
-var secondsStart = window.performance.now();
+
 
 function update(dt){
 	keyboard.updateKeyInput(dt);
@@ -800,13 +827,6 @@ function update(dt){
 	mouse.update();
 	updateAll(enemies, dt);
 	updateAll(explosions, dt);
-	
-	var secondsEnd = window.performance.now();
-
-	passedSeconds += secondsEnd - secondsStart;	
-	secondsStart = secondsEnd;
-	daux.clearRect(198,255,150,30);
-	daux.fillText((passedSeconds/1000).toFixed(2), 200, 265);
 	
 	checkEnemiesCollision(player);
 	
@@ -836,7 +856,7 @@ function update(dt){
 function render(){
 	d.clearRect(0, 0, canvas.width, canvas.height);
 	
-	renderHUD();
+	if(showHUD)renderHUD();
 	
 	player.render();
 	renderAll(enemies);
@@ -856,6 +876,7 @@ function main() {
     update(dt);
     render();
 
+	gameTime += dt;
     lastTime = now;
     requestAnimFrame(main);
 }

@@ -5,6 +5,7 @@
 function Keyboard(){
 
 	this.spacebarPressed = false;
+	this.H_pressed = false;
 
 	this.updateKeyInput = function(dt){
 	
@@ -59,7 +60,16 @@ function Keyboard(){
 			this.spacebarPressed = false;
 		}
 		
-
+		//Toggle HUD (on/off)
+		if(pressedKeys[VK_H] && !this.H_pressed){
+			this.H_pressed = true;
+			if(!showHUD) showHUD = true;
+			else showHUD = false;
+		}
+		else if(!pressedKeys[VK_H]){
+			this.H_pressed = false;
+			daux.clearRect(0,0,auxcanvas.width,auxcanvas.width);
+		}
 		
 	};
 	

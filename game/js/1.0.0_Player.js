@@ -9,7 +9,7 @@ function Player(x, y){
 
 	this.vx = 0;
 	this.vy = 0;
-	this.sprite = new Sprite('res/spritesheet.png', [0, 0], [32,32] , 16, [0,1,2,3,4,5,6,7]);
+	this.sprite = new Sprite('res/spritesheet.png', [0, 0], [32,32] , 12, [0,1,2,3,4,5,6,7]);
 	this.speed = STARTING_PLAYER_SPEED;
 	this.isBlocking = false;
 	this.blockRadius = (PLAYER_SPRITE_WIDTH/2) + BLOCK_RADIUS;

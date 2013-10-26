@@ -5,8 +5,7 @@
 var lineStart = window.performance.now();
 var followStart = window.performance.now();
 var timeTeleportStart = window.performance.now();
-var passedSeconds = 0;
-var secondsStart = window.performance.now();
+
 
 function update(dt){
 	keyboard.updateKeyInput(dt);
@@ -14,13 +13,6 @@ function update(dt){
 	mouse.update();
 	updateAll(enemies, dt);
 	updateAll(explosions, dt);
-	
-	var secondsEnd = window.performance.now();
-
-	passedSeconds += secondsEnd - secondsStart;	
-	secondsStart = secondsEnd;
-	daux.clearRect(198,255,150,30);
-	daux.fillText((passedSeconds/1000).toFixed(2), 200, 265);
 	
 	checkEnemiesCollision(player);
 	
@@ -50,7 +42,7 @@ function update(dt){
 function render(){
 	d.clearRect(0, 0, canvas.width, canvas.height);
 	
-	renderHUD();
+	if(showHUD)renderHUD();
 	
 	player.render();
 	renderAll(enemies);
@@ -70,6 +62,7 @@ function main() {
     update(dt);
     render();
 
+	gameTime += dt;
     lastTime = now;
     requestAnimFrame(main);
 }

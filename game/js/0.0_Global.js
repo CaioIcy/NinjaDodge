@@ -32,3 +32,7 @@ var SPAWN_FOLLOW_ENEMY_DELAY = 1500.0; //in microseconds
 
 var seconds = 0;
 var allowTeleport = true;
+
+var gameTime = 0;
+
+var showHUD = false;

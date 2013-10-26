@@ -50,14 +50,14 @@ function render(){
 }
 
 function initialize(){
-	lastTime = Date.now();
+	lastTime = window.performance.now();
     main();
 }
 
 // The main game loop
 var lastTime;
 function main() {
-    var now = Date.now();
+    var now = window.performance.now();
     var dt = (now - lastTime) / 1000.0;
     update(dt);
     render();

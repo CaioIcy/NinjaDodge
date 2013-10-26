@@ -16,6 +16,8 @@ function Player(x, y){
 	this.radius = PLAYER_SPRITE_WIDTH/2;
 	this.handle = PLAYER_HANDLE; // the ability to turn better
 	this.teleportRange = 100;
+	this.bulletRange = 180;
+	this.fireDelay = 3*1000000; // in microseconds
 	
 	/*	METHODS	*/
 	

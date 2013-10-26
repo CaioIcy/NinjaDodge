@@ -40,6 +40,13 @@ function Mouse() {
 			allowTeleport = false;
 		}
 	};
+	
+	this.mouseClick = function(){
+		if(allowFire){
+			allowFire = false;
+			createPlayerBullet(this.mx, this.my);
+		}
+	};
 
 }
 
@@ -85,4 +92,5 @@ function doMouseClick(){
 }
 
 window.addEventListener('mousemove', mouseXY, false);
+window.addEventListener('mousedown', doMouseClick, false);
 

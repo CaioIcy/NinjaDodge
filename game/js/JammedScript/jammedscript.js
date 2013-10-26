@@ -28,11 +28,12 @@ var PLAYER_HANDLE = 1;
 var ENEMY_VELOCITY = 2;
 var MAX_ENEMY_VELOCITY = 10;
 var ENEMY_SPRITE_WIDTH = 30;
-var SPAWN_LINE_ENEMY_DELAY = 1000.0; //in microseconds
-var SPAWN_FOLLOW_ENEMY_DELAY = 1500.0; //in microseconds
+var SPAWN_LINE_ENEMY_DELAY = 1000.0; //in milliseconds
+var SPAWN_FOLLOW_ENEMY_DELAY = 1500.0; //in milliseconds
 
 var seconds = 0;
 var allowTeleport = true;
+var allowFire = true;
 
 var gameTime = 0;
 
@@ -243,6 +244,11 @@ function renderHUD(){
 	//Game Time
 	daux.clearRect(4,auxcanvas.height-30, 40,15);
 	daux.fillText(gameTime.toFixed(2), 5, auxcanvas.height-15);
+	
+	//Number of PlayerBullets
+	daux.clearRect(49,auxcanvas.height-30, 40,15);
+	daux.fillText(playerBullets.length, 50, auxcanvas.height-15);
+	
 }
 
 function renderNumberOfEnemiesOnScreen(){
@@ -347,6 +353,21 @@ function Entity(x, y){
 	return this;
 }
  
+// Jamming from file: 1.0.0.1_Projectile.js
+/* *************************
+ * "CLASS": Projectile
+ * *************************/
+
+function Projectile(x, y, sprite){
+
+	Entity.call(this,x,y);
+	this.sprite = sprite;
+	this.radius = ((this.sprite.width + this.sprite.height)/2)/2;
+	this.range;
+
+	return this;
+}
+ 
 // Jamming from file: 1.0.0_Player.js
 /* *************************
  * "CLASS": Player
@@ -366,6 +387,8 @@ function Player(x, y){
 	this.radius = PLAYER_SPRITE_WIDTH/2;
 	this.handle = PLAYER_HANDLE; // the ability to turn better
 	this.teleportRange = 100;
+	this.bulletRange = 180;
+	this.fireDelay = 3*1000000; // in microseconds
 	
 	/*	METHODS	*/
 	
@@ -634,6 +657,83 @@ function createExplosion(x,y){
 	explosions[explosions.length] = new Explosion(x,y);
 }
 
+// Jamming from file: 1.4_PlayerBullet.js
+/* *************************
+ * "CLASS": PlayerBullet
+ * *************************/
+var playerBullets = [];
+function PlayerBullet(x, y, mx, my){
+
+	x += player.sprite.width/2;
+	y += player.sprite.height/2;
+
+	var sprite = new Sprite('res/spritesheet.png', [128,64], [6,6] , 16, [0,1,2,3], 'horizontal', false);
+	Projectile.call(this, x, y, sprite);
+	
+	this.range = player.bulletRange;
+	this.speed = 10;
+	
+	this.ox = x;
+	this.oy = y;
+	
+	this.xToFollow = mx - this.x;
+	this.yToFollow = my - this.y;
+	this.hypotenuse = Math.sqrt( (this.xToFollow*this.xToFollow)+(this.yToFollow*this.yToFollow) );
+	this.hypotenuse = (this.hypotenuse==0) ? 1 : this.hypotenuse;
+	this.xToFollow /= this.hypotenuse;
+	this.yToFollow /= this.hypotenuse;
+	
+	this.update = function(dt){
+		this.sprite.update(dt);
+		
+		this.x += this.xToFollow*this.speed;
+		this.y += this.yToFollow*this.speed;
+		
+		this.checkRange();
+		this.checkBoundaries();
+		this.checkCollision();
+		
+	};
+	
+	this.destroy = function(){
+		playerBullets.splice(playerBullets.indexOf(this), 1);
+	};
+	
+	this.checkRange = function(){
+		if(Math.abs(this.x) - Math.abs(this.ox) > this.range || Math.abs(this.ox) - Math.abs(this.x) > this.range){
+			this.destroy();
+		}
+		else if(Math.abs(this.y) - Math.abs(this.oy)> this.range || Math.abs(this.oy) - Math.abs(this.y)> this.range){
+			this.destroy();
+		}
+		else{
+			//do nothing
+		}
+	};
+	
+	this.checkBoundaries = function(){
+		if(this.x > canvas.width+50 || this.x < -50 || this.y > canvas.height+50 || this.y < -50){
+			this.destroy();
+		}
+	};
+	
+	this.checkCollision = function(){
+		for(var i = 0; i<enemies.length; i++){
+			var enemy = enemies[i];
+			if( circleCollision(this, enemy) ){
+				enemy.destroy();
+				createExplosion(enemy.x, enemy.y);
+			}
+		}
+	};
+	
+	return this;
+}
+
+function createPlayerBullet(mx,my){
+	playerBullets[playerBullets.length] = new PlayerBullet(player.x, player.y, mx, my);
+}
+
 // Jamming from file: 2.0_Keyboard.js
 /* *************************
  * "CLASS": Keyboard
@@ -769,6 +869,13 @@ function Mouse() {
 			allowTeleport = false;
 		}
 	};
+	
+	this.mouseClick = function(){
+		if(allowFire){
+			allowFire = false;
+			createPlayerBullet(this.mx, this.my);
+		}
+	};
 
 }
 
@@ -814,6 +921,7 @@ function doMouseClick(){
 }
 
 window.addEventListener('mousemove', mouseXY, false);
+window.addEventListener('mousedown', doMouseClick, false);
 
 
 // Jamming from file: 3.0_Game.js
@@ -824,6 +932,7 @@ window.addEventListener('mousemove', mouseXY, false);
 var lineStart = window.performance.now();
 var followStart = window.performance.now();
 var timeTeleportStart = window.performance.now();
+var fireDelayStart = window.performance.now();
 
 
 function update(dt){
@@ -832,6 +941,7 @@ function update(dt){
 	mouse.update();
 	updateAll(enemies, dt);
 	updateAll(explosions, dt);
+	updateAll(playerBullets, dt);
 	
 	checkEnemiesCollision(player);
 	
@@ -856,6 +966,13 @@ function update(dt){
 		timeTeleportStart = timeTeleportEnd;
 	}
 	
+	//Update teleport time
+	var fireDelayEnd = window.performance.now();
+	if(( fireDelayEnd - fireDelayStart ) > 3*1000){
+		allowFire = true;
+		fireDelayStart = fireDelayEnd;
+	}
+	
  }
 
 function render(){
@@ -866,6 +983,7 @@ function render(){
 	player.render();
 	renderAll(enemies);
 	renderAll(explosions);
+	renderAll(playerBullets);
 }
 
 function initialize(){

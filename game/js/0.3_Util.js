@@ -78,6 +78,11 @@ function renderHUD(){
 	//Game Time
 	daux.clearRect(4,auxcanvas.height-30, 40,15);
 	daux.fillText(gameTime.toFixed(2), 5, auxcanvas.height-15);
+	
+	//Number of PlayerBullets
+	daux.clearRect(49,auxcanvas.height-30, 40,15);
+	daux.fillText(playerBullets.length, 50, auxcanvas.height-15);
+	
 }
 
 function renderNumberOfEnemiesOnScreen(){

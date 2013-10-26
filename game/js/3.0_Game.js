@@ -5,6 +5,7 @@
 var lineStart = window.performance.now();
 var followStart = window.performance.now();
 var timeTeleportStart = window.performance.now();
+var fireDelayStart = window.performance.now();
 
 
 function update(dt){
@@ -13,6 +14,7 @@ function update(dt){
 	mouse.update();
 	updateAll(enemies, dt);
 	updateAll(explosions, dt);
+	updateAll(playerBullets, dt);
 	
 	checkEnemiesCollision(player);
 	
@@ -37,6 +39,13 @@ function update(dt){
 		timeTeleportStart = timeTeleportEnd;
 	}
 	
+	//Update teleport time
+	var fireDelayEnd = window.performance.now();
+	if(( fireDelayEnd - fireDelayStart ) > 3*1000){
+		allowFire = true;
+		fireDelayStart = fireDelayEnd;
+	}
+	
  }
 
 function render(){
@@ -47,6 +56,7 @@ function render(){
 	player.render();
 	renderAll(enemies);
 	renderAll(explosions);
+	renderAll(playerBullets);
 }
 
 function initialize(){

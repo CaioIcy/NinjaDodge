@@ -27,11 +27,12 @@ var PLAYER_HANDLE = 1;
 var ENEMY_VELOCITY = 2;
 var MAX_ENEMY_VELOCITY = 10;
 var ENEMY_SPRITE_WIDTH = 30;
-var SPAWN_LINE_ENEMY_DELAY = 1000.0; //in microseconds
-var SPAWN_FOLLOW_ENEMY_DELAY = 1500.0; //in microseconds
+var SPAWN_LINE_ENEMY_DELAY = 1000.0; //in milliseconds
+var SPAWN_FOLLOW_ENEMY_DELAY = 1500.0; //in milliseconds
 
 var seconds = 0;
 var allowTeleport = true;
+var allowFire = true;
 
 var gameTime = 0;
 

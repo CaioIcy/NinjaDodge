@@ -35,4 +35,4 @@ var allowTeleport = true;
 
 var gameTime = 0;
 
-var showHUD = false;
+var showHUD = true;

@@ -36,7 +36,7 @@ var allowTeleport = true;
 
 var gameTime = 0;
 
-var showHUD = false;
+var showHUD = true;
 
 // Jamming from file: 0.1_Sprites.js
 /* *************************
@@ -775,33 +775,38 @@ function Mouse() {
 var mouse = new Mouse();
 
 function mouseXY(e) {
-		e = e||event;
-		var mouseX = e.clientX - canvas.offsetLeft;
-		var mouseY = e.clientY - canvas.offsetTop;
+	e = e||event;
+	
+	var el = document.querySelector(".wrapper");
+	var offsetTop = el.getBoundingClientRect().top;
+	var offsetLeft = el.getBoundingClientRect().left;
+	
+	var mouseX = e.clientX - offsetLeft;
+	var mouseY = e.clientY - offsetTop;
 		
-		//Check mouseX boundaries
-		if(mouseX <= 0){
-			mouseX = 0;
-		}
-		else if(mouseX >= canvas.width){
-			mouseX = canvas.width;
-		}
-		else{
-			//maintain current mouseX
-		}
-		
-		//Check mouseY boundaries
-		if(mouseY <= 0){
-			mouseY = 0;
-		}
-		else if(mouseY >= canvas.height){
-			mouseY = canvas.height;
-		}
-		else{
-			//maintain current mouseY
-		}
-		
-		mouse.setXY(mouseX, mouseY);
+	//Check mouseX boundaries
+	if(mouseX <= 0){
+		mouseX = 0;
+	}
+	else if(mouseX >= canvas.width){
+		mouseX = canvas.width;
+	}
+	else{
+		//maintain current mouseX
+	}
+	
+	//Check mouseY boundaries
+	if(mouseY <= 0){
+		mouseY = 0;
+	}
+	else if(mouseY >= canvas.height){
+		mouseY = canvas.height;
+	}
+	else{
+		//maintain current mouseY
+	}
+	
+	mouse.setXY(mouseX, mouseY);
 }
 
 function doMouseClick(){

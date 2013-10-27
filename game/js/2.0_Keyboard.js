@@ -49,7 +49,7 @@ function Keyboard(){
 		else{
 		}
 		
-		//Block (SPACEBAR)
+		/*Block (SPACEBAR)
 		if(pressedKeys[VK_SPACEBAR] && !this.spacebarPressed){
 			this.spacebarPressed = true;
 			if(!player.isBlocking){
@@ -58,7 +58,7 @@ function Keyboard(){
 		}
 		else if(!(pressedKeys[VK_SPACEBAR] && !this.spacebarPressed)){
 			this.spacebarPressed = false;
-		}
+		}*/
 		
 		//Toggle HUD (on/off)
 		if(pressedKeys[VK_H] && !this.H_pressed){

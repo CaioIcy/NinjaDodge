@@ -217,6 +217,13 @@ var requestAnimFrame = (function(){
         };
 })();
 
+function renderEntity(entity){
+	d.save();
+	d.translate(entity.x, entity.y);
+	entity.sprite.render(d);
+	d.restore();
+}
+
 function renderAll(listOfEntities) {
     for(i = 0; i< listOfEntities.length; i++){
 		var entity = listOfEntities[i];
@@ -280,6 +287,36 @@ function disableclick(event)
    }
 }
 
+function drawBar(posx, posy, size, width, state, maxState, horizontal, colorInside){
+	if(state<0) state = 0;
+	if(maxState<1) maxState = 1;	
+	if(state>maxState) alert("drawBar -> state shouldn't be bigger than maxState");
+	
+	var fill = (state*size)/maxState;
+
+	d.fillStyle="black";
+	if(horizontal){
+		d.fillRect(posx, posy-1, size+2, width);
+		d.fillStyle = colorInside;
+		d.fillRect(posx+1, posy, fill, width-2);
+	}
+	else if(!horizontal){
+		d.fillRect(posx, posy-1, width, size+2);
+		d.fillStyle = colorInside;
+		d.fillRect(posx+1, posy+(size-fill), width-2, fill);
+	}
+	d.fillStyle="black";
+}
+
+function checkEnemiesCollision(object){
+	for(var i = 0; i<enemies.length; i++){
+		var enemy = enemies[i];
+		if( circleCollision(object, enemy) ){
+			enemy.destroy();
+			createExplosion(enemy.x, enemy.y);
+		}
+	}
+}
 function aumenta(signal, camp){
 	
 	var te = document.getElementById("teleport");
@@ -344,10 +381,7 @@ function Entity(x, y){
 	}
 	
 	this.render = function(){
-		d.save();
-		d.translate(this.x, this.y);
-		this.sprite.render(d);
-		d.restore();
+		renderEntity(this);
 	}
 
 	return this;
@@ -380,6 +414,8 @@ function Player(x, y){
 
 	this.vx = 0;
 	this.vy = 0;
+	this.currentMaxHealth = 2;
+	this.health = 2;
 	this.sprite = new Sprite('res/spritesheet.png', [0, 0], [32,32] , 12, [0,1,2,3,4,5,6,7]);
 	this.speed = STARTING_PLAYER_SPEED;
 	this.isBlocking = false;
@@ -413,6 +449,7 @@ function Player(x, y){
 	
 	this.update = function(dt){
 		this.sprite.update(dt);
+		this.checkEnemiesCollision();
 	
 		this.vx *= PLAYER_FRICTION;
 		this.vy *= PLAYER_FRICTION;
@@ -421,14 +458,38 @@ function Player(x, y){
 		this.y += this.vy;
 		
 		this.checkBoundaries();
+		
 	};
 	
-	this.block = function(){
+	this.render = function(){
+		renderEntity(this);
+		drawBar(this.x, this.y-12, this.sprite.width, 6, this.health, this.currentMaxHealth, true, "green");
+			//posx, posy, size, width, state, maxState, horizontal, colorInside
+	};
 	
-		this.isBlocking = true;
-		
-		checkEnemiesCollision(this);	
-				
+	this.checkEnemiesCollision = function(){
+		for(var i = 0; i<enemies.length; i++){
+			var enemy = enemies[i];
+			if(circleCollision(this, enemy) ){
+				enemy.destroy();
+				createExplosion(enemy.x, enemy.y);
+				this.health--;
+				this.checkHealth();
+			}
+		}
+	};
+	
+	this.checkHealth = function(){
+		if(this.health <= 0){
+			//todo upgrade menu, so game over instead
+			alert("Game over! You survived for " + gameTime.toFixed(2) + " seconds!");
+			location.reload(true);
+		}
+	}
+	
+	/*this.block = function(){
+	
+		this.isBlocking = true;				
 		var blockX = this.x + (this.sprite.width/2);
 		var blockY = this.y + (this.sprite.height/2);
 		daux.beginPath();
@@ -438,27 +499,15 @@ function Player(x, y){
 		setTimeout(function(){
 			daux.clearRect(0, 0, auxcanvas.width, auxcanvas.height);
 		}, 50);
-		blockEnable(this);
-	};
+		setTimeout(function(){
+			player.isBlocking = false;
+		}, BLOCK_DELAY);
+	};*/
+
 	
 	return this;
 }
 
-function blockEnable(player){
-		setTimeout(function(){
-			player.isBlocking = false;
-		}, BLOCK_DELAY);
-}
-
-function checkEnemiesCollision(player){
-	for(var i = 0; i<enemies.length; i++){
-		var enemy = enemies[i];
-		if( circleCollision(player, enemy) ){
-			enemy.destroy();
-			createExplosion(enemy.x, enemy.y);
-		}
-	}
-}
 
 var PLAYER_START_X = (canvas.width/2) - 32/2;
 var PLAYER_START_Y = (canvas.height/2) - 32/2;
@@ -567,12 +616,16 @@ function randomizeSpawnPosition(){
  * *************************/
 
 function FollowEnemy(x, y){
+
+	this.secondsToLive = 15;
+	this.creationTime = window.performance.now();
+	this.lifeSpan = this.creationTime + (this.secondsToLive*1000);
 	
 	Enemy.call(this, x, y, 'FOLLOW');
 
 	this.sprite = new Sprite('res/spritesheet.png', [0, 64], SPRITE_ENEMY_SIZE, 4, [0,1]);
 	this.speed = ENEMY_VELOCITY;
-	this.radius = ENEMY_SPRITE_WIDTH/2;
+	this.radius = ((this.sprite.width + this.sprite.height)/2)/2;
 	
 	this.updateMovement = function(){
 		var xToFollow = player.x - this.x;
@@ -590,8 +643,20 @@ function FollowEnemy(x, y){
 	//Update
 	this.update = function(dt){
 		this.sprite.update(dt);
+		this.checkLifeSpan();
 		this.updateMovement();
 		this.checkBoundaries();
+	};
+	
+	this.checkLifeSpan = function(){
+		var currentTime = window.performance.now();
+		if(currentTime > this.lifeSpan){
+			this.destroy();
+			createExplosion(this.x, this.y);
+		}
+		else{
+			//do nothing
+		}
 	};
 	
 	return this;
@@ -608,7 +673,7 @@ function LineEnemy(x, y){
 	
 	this.sprite = new Sprite('res/spritesheet.png', [0, 32], SPRITE_ENEMY_SIZE, 4, [0,1]);
 	this.speed = ENEMY_VELOCITY * 1.8;
-	this.radius = ENEMY_SPRITE_WIDTH/2;
+	this.radius = ((this.sprite.width + this.sprite.height)/2)/2;
 	
 	this.xToFollow = player.x - this.x;
 	this.yToFollow = player.y - this.y;
@@ -691,7 +756,7 @@ function PlayerBullet(x, y, mx, my){
 		
 		this.checkRange();
 		this.checkBoundaries();
-		this.checkCollision();
+		checkEnemiesCollision(this);
 		
 	};
 	
@@ -714,16 +779,6 @@ function PlayerBullet(x, y, mx, my){
 	this.checkBoundaries = function(){
 		if(this.x > canvas.width+50 || this.x < -50 || this.y > canvas.height+50 || this.y < -50){
 			this.destroy();
-		}
-	};
-	
-	this.checkCollision = function(){
-		for(var i = 0; i<enemies.length; i++){
-			var enemy = enemies[i];
-			if( circleCollision(this, enemy) ){
-				enemy.destroy();
-				createExplosion(enemy.x, enemy.y);
-			}
 		}
 	};
 	
@@ -786,7 +841,7 @@ function Keyboard(){
 		else{
 		}
 		
-		//Block (SPACEBAR)
+		/*Block (SPACEBAR)
 		if(pressedKeys[VK_SPACEBAR] && !this.spacebarPressed){
 			this.spacebarPressed = true;
 			if(!player.isBlocking){
@@ -795,7 +850,7 @@ function Keyboard(){
 		}
 		else if(!(pressedKeys[VK_SPACEBAR] && !this.spacebarPressed)){
 			this.spacebarPressed = false;
-		}
+		}*/
 		
 		//Toggle HUD (on/off)
 		if(pressedKeys[VK_H] && !this.H_pressed){
@@ -942,9 +997,7 @@ function update(dt){
 	updateAll(enemies, dt);
 	updateAll(explosions, dt);
 	updateAll(playerBullets, dt);
-	
-	checkEnemiesCollision(player);
-	
+		
 	//Spawn new line enemy
 	var lineEnd = window.performance.now();
 	if( (lineEnd - lineStart) > SPAWN_LINE_ENEMY_DELAY){

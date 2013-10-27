@@ -8,7 +8,7 @@ function LineEnemy(x, y){
 	
 	this.sprite = new Sprite('res/spritesheet.png', [0, 32], SPRITE_ENEMY_SIZE, 4, [0,1]);
 	this.speed = ENEMY_VELOCITY * 1.8;
-	this.radius = ENEMY_SPRITE_WIDTH/2;
+	this.radius = ((this.sprite.width + this.sprite.height)/2)/2;
 	
 	this.xToFollow = player.x - this.x;
 	this.yToFollow = player.y - this.y;

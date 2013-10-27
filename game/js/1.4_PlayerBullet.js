@@ -31,7 +31,7 @@ function PlayerBullet(x, y, mx, my){
 		
 		this.checkRange();
 		this.checkBoundaries();
-		this.checkCollision();
+		checkEnemiesCollision(this);
 		
 	};
 	
@@ -54,16 +54,6 @@ function PlayerBullet(x, y, mx, my){
 	this.checkBoundaries = function(){
 		if(this.x > canvas.width+50 || this.x < -50 || this.y > canvas.height+50 || this.y < -50){
 			this.destroy();
-		}
-	};
-	
-	this.checkCollision = function(){
-		for(var i = 0; i<enemies.length; i++){
-			var enemy = enemies[i];
-			if( circleCollision(this, enemy) ){
-				enemy.destroy();
-				createExplosion(enemy.x, enemy.y);
-			}
 		}
 	};
 	

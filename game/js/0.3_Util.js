@@ -51,6 +51,13 @@ var requestAnimFrame = (function(){
         };
 })();
 
+function renderEntity(entity){
+	d.save();
+	d.translate(entity.x, entity.y);
+	entity.sprite.render(d);
+	d.restore();
+}
+
 function renderAll(listOfEntities) {
     for(i = 0; i< listOfEntities.length; i++){
 		var entity = listOfEntities[i];
@@ -114,6 +121,36 @@ function disableclick(event)
    }
 }
 
+function drawBar(posx, posy, size, width, state, maxState, horizontal, colorInside){
+	if(state<0) state = 0;
+	if(maxState<1) maxState = 1;	
+	if(state>maxState) alert("drawBar -> state shouldn't be bigger than maxState");
+	
+	var fill = (state*size)/maxState;
+
+	d.fillStyle="black";
+	if(horizontal){
+		d.fillRect(posx, posy-1, size+2, width);
+		d.fillStyle = colorInside;
+		d.fillRect(posx+1, posy, fill, width-2);
+	}
+	else if(!horizontal){
+		d.fillRect(posx, posy-1, width, size+2);
+		d.fillStyle = colorInside;
+		d.fillRect(posx+1, posy+(size-fill), width-2, fill);
+	}
+	d.fillStyle="black";
+}
+
+function checkEnemiesCollision(object){
+	for(var i = 0; i<enemies.length; i++){
+		var enemy = enemies[i];
+		if( circleCollision(object, enemy) ){
+			enemy.destroy();
+			createExplosion(enemy.x, enemy.y);
+		}
+	}
+}
 function aumenta(signal, camp){
 	
 	var te = document.getElementById("teleport");

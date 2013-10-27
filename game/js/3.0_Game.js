@@ -15,9 +15,7 @@ function update(dt){
 	updateAll(enemies, dt);
 	updateAll(explosions, dt);
 	updateAll(playerBullets, dt);
-	
-	checkEnemiesCollision(player);
-	
+		
 	//Spawn new line enemy
 	var lineEnd = window.performance.now();
 	if( (lineEnd - lineStart) > SPAWN_LINE_ENEMY_DELAY){

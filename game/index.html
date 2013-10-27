@@ -26,26 +26,35 @@
 	</div>
 	
 	<div class ="container">
-		<h1>Values</h1>
-			<h3>Speed</h3>
-			<button onclick="aumenta('-','sp')">dw</button>
-			<input id="speed" name="speed" type="text" value="1" maxlength="2" size = "2" readonly></input>
-			<button onclick="aumenta('+','sp')">up</button>
-				
-			<h3>Teleport distance</h3>
-			<button onclick="aumenta('-','te')">dw</button>
-			<input id="teleport" name="teleport" type="text" value="1" maxlength="2" size = "2" readonly></input>
-			<button onclick="aumenta('+','te')">up</button>
-				
-			<h3>Strength</h3>
-			<button onclick="aumenta('-','st')">dw</button>
-			<input id="strength" name="strength" type="text" value="1" maxlength="2" size = "2" readonly></input>
-			<button onclick="aumenta('+','st')">up</button>
+		<h8>Speed</h8><br>
+		<button onclick="changeValues('-','speed')">-</button>
+		<input id="speed" name="speed" type="text" value="0" maxlength="2" size = "4" readonly></input>
+		<button onclick="changeValues('+','speed')">+</button>
+		<br>
+		
+		<h8>Teleport</h8><br>
+		<button onclick="changeValues('-','teleportRange')">-</button>
+		<input id="teleportRange" name="teleportRange" type="text" value="0" maxlength="2" size = "4" readonly></input>
+		<button onclick="changeValues('+','teleportRange')">+</button>
+		<br>	
 			
-			<h3>Refresh</h3>
-			<button onclick="refreshPage()">refresh</button>
-			
-			<br> <h7> h toggles HUD (on/off)</h7>
+		<h8>HP</h8><br>
+		<button onclick="changeValues('-','health')">-</button>
+		<input id="health" name="health" type="text" value="0" maxlength="2" size = "4" readonly></input>
+		<button onclick="changeValues('+','health')">+</button>
+		<br>
+		
+		<h8>Max HP</h8><br>
+		<button onclick="changeValues('-','maxHealth')">-</button>
+		<input id="maxhealth" name="maxhealth" type="text" value="0" maxlength="2" size = "4" readonly></input>
+		<button onclick="changeValues('+','maxHealth')">+</button>
+		<br>
+		
+		<h8>Refresh</h8>
+		<button onclick="refreshPage()">f5</button>
+		<br>
+		
+		<h7> h toggles HUD (on/off)</h7>
 	</div>
 	
 	

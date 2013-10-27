@@ -151,48 +151,68 @@ function checkEnemiesCollision(object){
 		}
 	}
 }
-function aumenta(signal, camp){
+function changeValues(signal, camp){
 	
-	var te = document.getElementById("teleport");
-	var sp = document.getElementById("speed");
-	var st = document.getElementById("strength");
+	var teleportCamp = document.getElementById("teleportRange");
+	var speedCamp = document.getElementById("speed");
+	var healthCamp = document.getElementById("health");
+	var maxHealthCamp = document.getElementById("maxhealth");
 	
-		if(signal == "-"){
-			if(camp == "te"){
-				if(te.value > 0){
-					te.value--;
-					player.teleportRange-=10;
+		if(signal == '-'){
+			if(camp == 'teleportRange'){
+				if(player.teleportRange > 10){
+					player.teleportRange -= 10;
 				}
 			}
-			else if(camp == "sp"){
-				if(sp.value > 0){
-					sp.value--;
+			else if(camp == 'speed'){
+				if(player.speed > 5){
+					player.speed -= 5;
 				}
-				//to implement
 			}
-			else if(camp == "st"){
-				if(st.value > 0){
-					st.value--;
+			else if(camp == 'health'){
+				if(player.health > 1){
+					player.health--;
 				}
-				//to implement
+			}
+			else if(camp == 'maxHealth'){
+				if(player.currentMaxHealth > player.health){
+					player.currentMaxHealth--;
+				}
 			}
 		}
-		else if(signal == "+"){
-			if(camp == "te"){
-				te.value++;
-				player.teleportRange+=10;
+		else if(signal == '+'){
+			if(camp == 'teleportRange'){
+				player.teleportRange += 10;
 			}
-			else if(camp == "sp"){
-				sp.value++;
-				//to implement
+			else if(camp == 'speed'){
+				player.speed += 5;
 			}
-			else if(camp == "st"){
-				st.value++;
-				//to implement
+			else if(camp == 'health'){
+				if(player.health < player.currentMaxHealth){
+					player.health++;
+				}
+			}
+			else if(camp == 'maxHealth'){
+				player.currentMaxHealth++;
 			}
 		}
+		else{
+			alert("changeValues() -> wrong signal [" + signal + "]");
+		}
+		
 }
 
 function refreshPage(){
 	location.reload(true);
+}
+
+function setHtmlValues(){
+	var speed = document.getElementById("speed");
+	var teleport = document.getElementById("teleportRange");
+	var health = document.getElementById("health");
+	var maxHealth = document.getElementById("maxhealth");
+	speed.value = player.speed;
+	teleport.value = player.teleportRange;
+	health.value = player.health;
+	maxHealth.value = player.currentMaxHealth;
 }

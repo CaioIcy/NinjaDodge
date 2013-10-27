@@ -44,6 +44,8 @@ function update(dt){
 		fireDelayStart = fireDelayEnd;
 	}
 	
+	setHtmlValues();
+	
  }
 
 function render(){
@@ -59,6 +61,7 @@ function render(){
 
 function initialize(){
 	lastTime = window.performance.now();
+	setHtmlValues();
     main();
 }
 

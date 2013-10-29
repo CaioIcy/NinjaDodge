@@ -2,6 +2,8 @@
  * "CLASS": Keyboard
  * *************************/
 
+var paused = false;
+ 
 function Keyboard(){
 
 	this.spacebarPressed = false;
@@ -75,16 +77,25 @@ function Keyboard(){
 	
 }
 
-window.onkeydown = function(e){
+function keyPressed(e) {
 	if(!e) var e = window.onkeydown;
 	e=e||event;
 	pressedKeys[e.keyCode] = true;
+		if(e.keyCode==13){
+			if(paused)
+				paused = false;
+			else
+			paused = true;
+		}
 };
 
-window.onkeyup = function(e){
+function keyReleased(e){
 	if(!e) var e = window.onkeyup;
 	e=e||event;
 	pressedKeys[e.keyCode] = false;
 };
+
+window.addEventListener('keydown', keyPressed, false);
+window.addEventListener('keyup', keyReleased, false);
 
 var keyboard = new Keyboard();

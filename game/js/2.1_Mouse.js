@@ -87,8 +87,12 @@ function mouseXY(e) {
 	mouse.setXY(mouseX, mouseY);
 }
 
-function doMouseClick(){
-	mouse.mouseClick();
+function doMouseClick(e){
+	e = e||event;
+    mouse.mouseClick();
+	if(e.button==2){
+		return ;    
+	}
 }
 
 window.addEventListener('mousemove', mouseXY, false);

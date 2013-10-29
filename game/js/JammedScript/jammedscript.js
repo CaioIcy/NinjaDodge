@@ -277,15 +277,6 @@ function renderNumberOfEnemiesOnScreen(){
 	daux.fillText("F: " + nf, 5, 280);
 }
 
-window.onmousedown = disableclick;
-function disableclick(event)
-{
-  if(event.button==2)
-   {
-     return false;    
-   }
-}
-
 function drawBar(posx, posy, size, width, state, maxState, horizontal, colorInside){
 	if(state<0) state = 0;
 	if(maxState<1) maxState = 1;	
@@ -813,6 +804,8 @@ function createPlayerBullet(mx,my){
  * "CLASS": Keyboard
  * *************************/
 
+var paused = false;
+ 
 function Keyboard(){
 
 	this.spacebarPressed = false;
@@ -886,17 +879,26 @@ function Keyboard(){
 	
 }
 
-window.onkeydown = function(e){
+function keyPressed(e) {
 	if(!e) var e = window.onkeydown;
 	e=e||event;
 	pressedKeys[e.keyCode] = true;
+		if(e.keyCode==13){
+			if(paused)
+				paused = false;
+			else
+			paused = true;
+		}
 };
 
-window.onkeyup = function(e){
+function keyReleased(e){
 	if(!e) var e = window.onkeyup;
 	e=e||event;
 	pressedKeys[e.keyCode] = false;
 };
+
+window.addEventListener('keydown', keyPressed, false);
+window.addEventListener('keyup', keyReleased, false);
 
 var keyboard = new Keyboard();
 
@@ -990,8 +992,12 @@ function mouseXY(e) {
 	mouse.setXY(mouseX, mouseY);
 }
 
-function doMouseClick(){
-	mouse.mouseClick();
+function doMouseClick(e){
+	e = e||event;
+    mouse.mouseClick();
+	if(e.button==2){
+		return ;    
+	}
 }
 
 window.addEventListener('mousemove', mouseXY, false);
@@ -1010,6 +1016,7 @@ var fireDelayStart = window.performance.now();
 
 
 function update(dt){
+	if(!paused){
 	keyboard.updateKeyInput(dt);
 	player.update(dt);
 	mouse.update();
@@ -1046,7 +1053,7 @@ function update(dt){
 	}
 	
 	setHtmlValues();
-	
+	}
  }
 
 function render(){
@@ -1060,6 +1067,12 @@ function render(){
 	renderAll(enemies);
 	renderAll(explosions);
 	renderAll(playerBullets);
+	
+	if(paused){
+		daux.font = "32px Arial";
+		daux.fillText("Game Paused!", auxcanvas.width/2 - 60,auxcanvas.height/2);
+		daux.font = "10px Arial";
+	}
 }
 
 function initialize(){
@@ -1073,13 +1086,15 @@ function initialize(){
 // The main game loop
 var lastTime;
 function main() {
+
     var now = window.performance.now();
     var dt = (now - lastTime) / 1000.0;
-    update(dt);
-    render();
+
+	update(dt);
+	render();
 
 	gameTime += dt;
-    lastTime = now;
-    requestAnimFrame(main);
+	lastTime = now;
+	requestAnimFrame(main);
 }
 

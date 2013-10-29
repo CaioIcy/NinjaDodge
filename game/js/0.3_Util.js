@@ -112,15 +112,6 @@ function renderNumberOfEnemiesOnScreen(){
 	daux.fillText("F: " + nf, 5, 280);
 }
 
-window.onmousedown = disableclick;
-function disableclick(event)
-{
-  if(event.button==2)
-   {
-     return false;    
-   }
-}
-
 function drawBar(posx, posy, size, width, state, maxState, horizontal, colorInside){
 	if(state<0) state = 0;
 	if(maxState<1) maxState = 1;	

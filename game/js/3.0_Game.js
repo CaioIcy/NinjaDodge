@@ -9,6 +9,7 @@ var fireDelayStart = window.performance.now();
 
 
 function update(dt){
+	if(!paused){
 	keyboard.updateKeyInput(dt);
 	player.update(dt);
 	mouse.update();
@@ -45,7 +46,7 @@ function update(dt){
 	}
 	
 	setHtmlValues();
-	
+	}
  }
 
 function render(){
@@ -59,6 +60,12 @@ function render(){
 	renderAll(enemies);
 	renderAll(explosions);
 	renderAll(playerBullets);
+	
+	if(paused){
+		daux.font = "32px Arial";
+		daux.fillText("Game Paused!", auxcanvas.width/2 - 60,auxcanvas.height/2);
+		daux.font = "10px Arial";
+	}
 }
 
 function initialize(){
@@ -72,12 +79,14 @@ function initialize(){
 // The main game loop
 var lastTime;
 function main() {
+
     var now = window.performance.now();
     var dt = (now - lastTime) / 1000.0;
-    update(dt);
-    render();
+
+	update(dt);
+	render();
 
 	gameTime += dt;
-    lastTime = now;
-    requestAnimFrame(main);
+	lastTime = now;
+	requestAnimFrame(main);
 }

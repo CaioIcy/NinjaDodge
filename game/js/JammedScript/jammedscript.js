@@ -45,13 +45,12 @@ var showHUD = true;
  * *************************/
 
 resources.load([
-    'res/Player.png',
-    'res/FollowEnemy.png',
-	'res/LineEnemy.png',
+    'res/bg_floor.png',
 	'res/spritesheet.png'
 ]);
 resources.onReady(initialize);
 
+var bgPattern;
 var SPRITE_ENEMY_SIZE = [32,32];
 
 // Jamming from file: 0.2_VkValues.js
@@ -1051,7 +1050,9 @@ function update(dt){
  }
 
 function render(){
-	d.clearRect(0, 0, canvas.width, canvas.height);
+	//d.clearRect(0, 0, canvas.width, canvas.height);
+	d.fillStyle = bgPattern;
+	d.fillRect(0, 0, canvas.width, canvas.height);
 	
 	if(showHUD)renderHUD();
 	
@@ -1062,6 +1063,8 @@ function render(){
 }
 
 function initialize(){
+	bgPattern = d.createPattern(resources.get('res/bg_floor.png'), 'repeat');
+
 	lastTime = window.performance.now();
 	setHtmlValues();
     main();

@@ -49,7 +49,9 @@ function update(dt){
  }
 
 function render(){
-	d.clearRect(0, 0, canvas.width, canvas.height);
+	//d.clearRect(0, 0, canvas.width, canvas.height);
+	d.fillStyle = bgPattern;
+	d.fillRect(0, 0, canvas.width, canvas.height);
 	
 	if(showHUD)renderHUD();
 	
@@ -60,6 +62,8 @@ function render(){
 }
 
 function initialize(){
+	bgPattern = d.createPattern(resources.get('res/bg_floor.png'), 'repeat');
+
 	lastTime = window.performance.now();
 	setHtmlValues();
     main();

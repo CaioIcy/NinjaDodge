@@ -1086,14 +1086,16 @@ function initialize(){
 // The main game loop
 var lastTime;
 function main() {
-
     var now = window.performance.now();
     var dt = (now - lastTime) / 1000.0;
-
+	
 	update(dt);
 	render();
-
+	
+	if(!paused){
 	gameTime += dt;
+	}
+	
 	lastTime = now;
 	requestAnimFrame(main);
 }

@@ -89,10 +89,13 @@ function mouseXY(e) {
 
 function doMouseClick(e){
 	e = e||event;
-    mouse.mouseClick();
+	if(state==2){
+		mouse.mouseClick();
+	}
 	if(e.button==2){
 		return false;    
 	}
+	state = 2;
 }
 
 window.addEventListener('mousemove', mouseXY, false);

@@ -9,7 +9,7 @@ var fireDelayStart = window.performance.now();
 
 
 function update(dt){
-	if(!paused){
+	if(!paused && state==2){
 	keyboard.updateKeyInput(dt);
 	player.update(dt);
 	mouse.update();
@@ -69,6 +69,7 @@ function render(){
 }
 
 function initialize(){
+
 	bgPattern = d.createPattern(resources.get('res/bg_floor.png'), 'repeat');
 
 	lastTime = window.performance.now();
@@ -85,10 +86,15 @@ function main() {
 	update(dt);
 	render();
 	
-	if(!paused){
-	gameTime += dt;
+	if(!paused && state==2){
+		gameTime += dt;
 	}
 	
 	lastTime = now;
 	requestAnimFrame(main);
+	
+	if(state==0){
+		d.clearRect(0, 0, canvas.width, canvas.height);
+		d.fillRect(0, 0, canvas.width, canvas.height);
+	}
 }

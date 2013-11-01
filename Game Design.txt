@@ -1,16 +1,15 @@
-theme: you are a gladiator that have to survive. as you survive you must collect the loot from the enemies you kill.
+theme: you are a gladiator that has to survive. as you survive you must collect the loot from the enemies you kill.
 
-scenario: you are in an arena where you kill and dogde people to survive.
+scenario: you are in an arena where you fight for your survival.
 
-character: you are a slave that wants a better life, you already have some notoriety, and the only thing you know is how to fight
+character: you are a slave that wants a better life, you already have some notoriety for your skills, and the only thing you know is how to fight
 
 enemies: other gladiators and sometimes animals.
-
-enemies types: 
-	lion: eat everything in its way, that being you and every other enemy on screen, it has a incredibly huge resistance.
-	archer: shoots the player from far away, he is hard to kill and respawns relatively fast.
-	gladiator: the other gladiators target you because they know you are a threat.
-	gladiator++: they are faster and have more resistance.
+	enemies types: 
+		lion: eat everything in its way, that being you and every other enemy on screen, it has a incredibly huge resistance.
+		archer: shoots the player from far away, he is hard to kill and respawns relatively fast.
+		gladiator: the other gladiators target you because they know you are a threat.
+		gladiator++: they are faster and have more resistance.
 
 upgradables:
 	health (armor)

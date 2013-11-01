@@ -11,6 +11,8 @@ var daux = auxcanvas.getContext("2d");
 // Auxiliary global index
 var i = 0;
 
+var state = 0;
+
 // Keystrokes array
 var pressedKeys = [];
 

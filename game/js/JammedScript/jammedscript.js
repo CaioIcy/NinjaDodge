@@ -996,7 +996,7 @@ function doMouseClick(e){
 	e = e||event;
     mouse.mouseClick();
 	if(e.button==2){
-		return ;    
+		return false;    
 	}
 }
 

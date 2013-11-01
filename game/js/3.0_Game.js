@@ -93,8 +93,11 @@ function main() {
 	lastTime = now;
 	requestAnimFrame(main);
 	
+	//drawing menu
 	if(state==0){
 		d.clearRect(0, 0, canvas.width, canvas.height);
-		d.fillRect(0, 0, canvas.width, canvas.height);
+		menu = new Image();
+		menu.src = "res/menu.png";
+		d.drawImage(menu,0,0,canvas.width, canvas.height);
 	}
 }

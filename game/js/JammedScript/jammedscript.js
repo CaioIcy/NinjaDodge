@@ -25,6 +25,7 @@ var BLOCK_DELAY = 1000; // in milliseconds
 var PLAYER_SPRITE_WIDTH = 30;
 var TELEPORT = 50000;
 var PLAYER_HANDLE = 1;
+var FIRE = 3000;
 
 // Enemy
 var ENEMY_VELOCITY = 2;
@@ -1020,6 +1021,7 @@ var timeTeleportStart = window.performance.now();
 var fireDelayStart = window.performance.now();
 
 var teleportTime = 0;
+var fireTime = 0;
 
 function update(dt){
 	if(!paused && state==2){
@@ -1053,7 +1055,7 @@ function update(dt){
 	
 	//Update teleport time
 	var fireDelayEnd = window.performance.now();
-	if(( fireDelayEnd - fireDelayStart ) > 3*1000){
+	if(( fireDelayEnd - fireDelayStart ) > FIRE){
 		allowFire = true;
 		fireDelayStart = fireDelayEnd;
 	}
@@ -1075,7 +1077,10 @@ function render(){
 	renderAll(playerBullets);
 	
 	drawBar(5, 5, 50, 20,allowTeleport == true ? (TELEPORT/1000) : (TELEPORT/1000) - teleportTime, TELEPORT/1000, true, "green");
-	
+	drawBar(5, 35, 50, 20,allowFire == true ? (FIRE/1000) : (FIRE/1000) - fireTime, FIRE/1000, true, "red");
+	d.fillText("Teleport", 60,15);
+	d.fillText("Fire", 60,45);
+
 	if(paused){
 		daux.font = "32px Arial";
 		daux.fillText("Game Paused!", auxcanvas.width/2 - 60,auxcanvas.height/2);
@@ -1103,8 +1108,20 @@ function main() {
 	
 	if(!paused && state==2){
 		gameTime += dt;
-		if(allowTeleport == false)
+		
+		if(allowTeleport == false){
 			teleportTime += dt;
+		}
+		else {
+			teleportTime = 0;
+		}
+		
+		if(allowFire == false){
+			fireTime += dt;
+		}
+		else {
+			fireTime = 0;
+		}
 	}
 	
 	lastTime = now;

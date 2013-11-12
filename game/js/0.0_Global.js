@@ -24,6 +24,7 @@ var BLOCK_DELAY = 1000; // in milliseconds
 var PLAYER_SPRITE_WIDTH = 30;
 var TELEPORT = 50000;
 var PLAYER_HANDLE = 1;
+var FIRE = 3000;
 
 // Enemy
 var ENEMY_VELOCITY = 2;

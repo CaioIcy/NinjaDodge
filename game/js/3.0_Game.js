@@ -18,6 +18,9 @@ function update(dt){
 	updateAll(enemies, dt);
 	updateAll(explosions, dt);
 	updateAll(playerBullets, dt);
+	
+	SPAWN_LINE_ENEMY_DELAY = gameTime < 67 ? 2000.0 - (gameTime*30) : 100;
+	SPAWN_FOLLOW_ENEMY_DELAY = gameTime < 84 ? 2500.0 - (gameTime*30) : 100;
 		
 	//Spawn new line enemy
 	var lineEnd = window.performance.now();
